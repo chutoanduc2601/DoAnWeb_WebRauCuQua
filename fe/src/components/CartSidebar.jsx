@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 
-const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove }) => {
+const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, onCheckout }) => {
   // Tính tổng tiền
   const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
@@ -120,7 +120,9 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove })
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalPrice)}
                   </span>
                 </div>
-                <button className="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-brand-500/30 hover:-translate-y-1 active:scale-[0.98]">
+                <button
+                  onClick={() => { onClose(); onCheckout?.(); }}
+                  className="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-brand-500/30 hover:-translate-y-1 active:scale-[0.98]">
                   Thanh Toán Ngay
                 </button>
               </div>
