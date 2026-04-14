@@ -8,12 +8,32 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Giả lập login/register thành công, lấy name làm tên hiển thị
-    const userName = formData.name || formData.email.split('@')[0] || 'Khách';
-    onLogin({ name: userName, email: formData.email });
-    onClose();
+    const endpoint = isLoginView ? '/api/auth/login' : '/api/auth/register';
+    
+    try {
+      const response = await fetch('http://localhost:8082' + endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert(data.message);
+        if (isLoginView || !isLoginView) { // Both login and successful registration can sign in
+           onLogin(data.user);
+           onClose();
+        }
+      } else {
+        alert(data.message || 'Đã có lỗi xảy ra');
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      alert('Không thể kết nối tới server!');
+    }
   };
 
   const handleToggle = () => {
