@@ -17,7 +17,7 @@ const StorySection = () => {
   };
 
   return (
-    <section className="py-24 bg-brand-50 overflow-hidden relative">
+    <section id="about" className="py-24 bg-brand-50 overflow-hidden relative">
       {/* Background Decorative element */}
       <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-brand-200 rounded-full blur-3xl opacity-50 mix-blend-multiply"></div>
 
