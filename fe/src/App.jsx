@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
+import StorySection from './components/StorySection';
 import Shop from './components/Shop';
 import ProductDetail from './components/ProductDetail';
 import Footer from './components/Footer';
@@ -87,6 +88,7 @@ function App() {
 
             <main>
               <HeroSection />
+              <StorySection />
               <Shop
                 onAddToCart={handleAddToCart}
                 onProductClick={handleProductClick}
