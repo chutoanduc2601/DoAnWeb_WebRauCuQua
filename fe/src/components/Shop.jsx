@@ -1,17 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductCard from './ProductCard';
-import { mockProducts } from '../data';
 import { Filter } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Shop = ({ onAddToCart, onProductClick }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:8082/api/products')
+      .then(res => res.json())
+      .then(data => {
+        const formattedData = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          unit: `/${item.unit}`,
+          image: item.imageUrl,
+          categories: item.tags || [],
+          badge: item.badge
+        }));
+        setProducts(formattedData);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error fetching products:", err);
+        setLoading(false);
+      });
+  }, []);
 
   const filters = ['All', 'Organic', 'VietGAP'];
 
   const filteredProducts = activeFilter === 'All' 
-    ? mockProducts 
-    : mockProducts.filter(p => p.categories.includes(activeFilter));
+    ? products 
+    : products.filter(p => p.categories.includes(activeFilter));
 
   return (
     <section id="shop" className="py-20 bg-white">
@@ -62,24 +85,41 @@ const Shop = ({ onAddToCart, onProductClick }) => {
 
           {/* Product Grid */}
           <div className="w-full lg:w-3/4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProducts.map(product => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
-                  onAdd={onAddToCart}
-                  onClick={onProductClick}
-                />
-              ))}
-            </div>
             
-            {filteredProducts.length === 0 && (
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 flex flex-col">
+                    <div className="aspect-[4/3] bg-slate-200 animate-pulse"></div>
+                    <div className="p-5 flex-1 flex flex-col">
+                      <div className="h-3 w-16 bg-slate-200 animate-pulse mb-3 rounded"></div>
+                      <div className="h-5 w-3/4 bg-slate-200 animate-pulse mb-6 rounded"></div>
+                      <div className="flex justify-between items-end mt-auto">
+                        <div className="h-6 w-24 bg-slate-200 animate-pulse rounded"></div>
+                        <div className="h-10 w-10 bg-slate-200 animate-pulse rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="text-center py-20 bg-slate-50 rounded-2xl border border-slate-100 border-dashed">
                 <p className="text-slate-500">Không tìm thấy sản phẩm phù hợp.</p>
               </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredProducts.map(product => (
+                  <ProductCard 
+                    key={product.id} 
+                    product={product} 
+                    onAdd={onAddToCart}
+                    onClick={onProductClick}
+                  />
+                ))}
+              </div>
             )}
             
-            {filteredProducts.length > 0 && (
+            {!loading && filteredProducts.length > 0 && (
               <div className="text-center mt-12">
                 <button className="px-8 py-3 rounded-full border-2 border-slate-200 text-slate-700 font-medium hover:border-brand-600 hover:text-brand-600 transition-colors">
                   Xem Thêm

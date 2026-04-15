@@ -30,7 +30,7 @@ public class SecurityConfig {
                 return corsConfig;
             }))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/products/**").permitAll()
                 .anyRequest().authenticated()
             );
         return http.build();
