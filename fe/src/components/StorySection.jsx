@@ -102,12 +102,12 @@ const StorySection = () => {
   const BadgeIcon = currentStory.badgeIcon;
 
   return (
-    <section id="about" className="py-24 bg-brand-50 overflow-hidden relative">
+    <section id="about" className="py-12 sm:py-16 md:py-24 bg-brand-50 overflow-hidden relative">
       {/* Background Decorative element */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-brand-200 rounded-full blur-3xl opacity-50 mix-blend-multiply"></div>
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 sm:w-80 md:w-96 h-64 sm:h-80 md:h-96 bg-brand-200 rounded-full blur-3xl opacity-50 mix-blend-multiply"></div>
 
-      <div className="container mx-auto px-4 md:px-8 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-16">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 relative z-10">
+        <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
 
           {/* Left: Image */}
           <motion.div
@@ -122,16 +122,16 @@ const StorySection = () => {
               <img
                 src={currentStory.img}
                 alt="Nguồn sống tự nhiên"
-                className="rounded-3xl shadow-2xl object-cover h-[500px] w-full"
+                className="rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl object-cover h-[280px] sm:h-[360px] md:h-[420px] lg:h-[500px] w-full"
               />
-              <div className="absolute -bottom-8 -right-8 bg-white p-6 rounded-2xl shadow-xl max-w-xs hidden md:block border border-slate-100">
-                <div className="flex items-center gap-4 mb-2">
-                  <div className="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center text-brand-600">
-                    <BadgeIcon size={24} />
+              <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 md:-bottom-8 md:-right-8 bg-white p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl max-w-[200px] sm:max-w-xs hidden sm:block border border-slate-100">
+                <div className="flex items-center gap-2 sm:gap-4 mb-1 sm:mb-2">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-brand-100 rounded-full flex items-center justify-center text-brand-600">
+                    <BadgeIcon size={18} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-slate-800">{currentStory.badgeTitle}</h4>
-                    <p className="text-xs text-slate-500">{currentStory.badgeSub}</p>
+                    <h4 className="font-extrabold text-slate-800 text-sm sm:text-base">{currentStory.badgeTitle}</h4>
+                    <p className="text-[10px] sm:text-xs text-slate-500">{currentStory.badgeSub}</p>
                   </div>
                 </div>
               </div>
@@ -147,39 +147,39 @@ const StorySection = () => {
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
           >
-            <motion.div variants={itemVariants} className="inline-block px-4 py-1.5 rounded-full bg-brand-100 text-brand-700 font-bold text-sm mb-6 uppercase tracking-wider">
+            <motion.div variants={itemVariants} className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-brand-100 text-brand-700 font-bold text-xs sm:text-sm mb-4 sm:mb-6 uppercase tracking-wider">
               Câu Chuyện Của Chúng Tôi
             </motion.div>
 
-            <motion.h2 variants={itemVariants} className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
-              {currentStory.title1} <br /> <span className="text-brand-600">{currentStory.title2}</span>
+            <motion.h2 variants={itemVariants} className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-4 sm:mb-6 leading-tight">
+              {currentStory.title1} <br className="hidden sm:block" /> <span className="text-brand-600">{currentStory.title2}</span>
             </motion.h2>
 
-            <motion.p variants={itemVariants} className="text-lg text-slate-600 mb-8 leading-relaxed">
+            <motion.p variants={itemVariants} className="text-base sm:text-lg text-slate-600 mb-6 sm:mb-8 leading-relaxed">
               {currentStory.description}
             </motion.p>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {currentStory.features.map((feature, idx) => {
                 const FeatureIcon = feature.icon;
                 return (
-                  <motion.div key={idx} variants={itemVariants} className="flex gap-4">
+                  <motion.div key={idx} variants={itemVariants} className="flex gap-3 sm:gap-4">
                     <div className="flex-shrink-0 mt-1">
-                      <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-brand-500 border border-brand-100">
-                        <FeatureIcon size={20} />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-brand-500 border border-brand-100">
+                        <FeatureIcon size={16} className="sm:w-5 sm:h-5" />
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-xl font-bold text-slate-800 mb-2">{feature.title}</h4>
-                      <p className="text-slate-600">{feature.desc}</p>
+                      <h4 className="text-lg sm:text-xl font-bold text-slate-800 mb-1 sm:mb-2">{feature.title}</h4>
+                      <p className="text-sm sm:text-base text-slate-600">{feature.desc}</p>
                     </div>
                   </motion.div>
                 );
               })}
             </div>
 
-            <motion.div variants={itemVariants} className="mt-10 pt-8 border-t border-brand-200">
-              <p className="font-medium text-slate-800 italic text-lg opacity-80">
+            <motion.div variants={itemVariants} className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-brand-200">
+              <p className="font-medium text-slate-800 italic text-base sm:text-lg opacity-80">
                 {currentStory.quote}
               </p>
             </motion.div>
