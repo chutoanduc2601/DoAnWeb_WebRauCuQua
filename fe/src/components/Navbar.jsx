@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Search, Leaf, User, Menu, X } from 'lucide-react';
+import { ShoppingCart, Search, Leaf, User, Menu, X, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout }) => {
   const [scrolled, setScrolled] = useState(false);
@@ -72,21 +73,33 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout }) => {
               </button>
 
               {user ? (
-                <div className="flex items-center gap-2 group relative cursor-pointer ml-1 sm:ml-2">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-xs sm:text-sm">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="font-semibold text-sm hidden lg:block text-slate-800">{user.name}</span>
-                  {/* Dropdown Logout (Simplified) */}
-                  <div className="absolute top-full right-0 mt-2 w-32 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                    <button 
-                      onClick={onLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50 font-medium rounded-lg"
+                <>
+                  {user.role === 'ADMIN' && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs sm:text-sm font-semibold cursor-pointer"
+                      title="Trang Admin"
                     >
-                      Đăng Xuất
-                    </button>
+                      <Shield size={16} />
+                      <span className="hidden sm:inline">Admin</span>
+                    </Link>
+                  )}
+                  <div className="flex items-center gap-2 group relative cursor-pointer ml-1 sm:ml-2">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-xs sm:text-sm">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="font-semibold text-sm hidden lg:block text-slate-800">{user.name}</span>
+                    {/* Dropdown Logout (Simplified) */}
+                    <div className="absolute top-full right-0 mt-2 w-32 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                      <button 
+                        onClick={onLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50 font-medium rounded-lg"
+                      >
+                        Đăng Xuất
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </>
               ) : (
                 <button 
                   onClick={onOpenAuth}

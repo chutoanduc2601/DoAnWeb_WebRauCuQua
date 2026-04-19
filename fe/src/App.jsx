@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
@@ -9,8 +10,10 @@ import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import CartSidebar from './components/CartSidebar';
 import Checkout from './components/Checkout';
+import AdminLayout from './admin/AdminLayout';
 
-function App() {
+function UserApp() {
+  const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -19,7 +22,7 @@ function App() {
     const savedUser = localStorage.getItem('currentUser');
     return savedUser ? JSON.parse(savedUser) : null;
   });
-  const [view, setView] = useState('home'); // 'home' | 'checkout'
+  const [view, setView] = useState('home');
 
   useEffect(() => {
     if (currentUser) {
@@ -107,7 +110,12 @@ function App() {
             <AuthModal
               isOpen={isAuthOpen}
               onClose={() => setIsAuthOpen(false)}
-              onLogin={(userData) => setCurrentUser(userData)}
+              onLogin={(userData) => {
+                setCurrentUser(userData);
+                if (userData?.role === 'ADMIN') {
+                  navigate('/admin');
+                }
+              }}
             />
 
             <CartSidebar
@@ -140,6 +148,15 @@ function App() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/admin/*" element={<AdminLayout />} />
+      <Route path="/*" element={<UserApp />} />
+    </Routes>
   );
 }
 
