@@ -1,27 +1,109 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 import AdminModal from '../components/AdminModal';
 import StatusBadge from '../components/StatusBadge';
-import { products as allProducts, categories, formatCurrency } from '../data/adminMockData';
+import { categories, formatCurrency } from '../admin/data/adminMockData';
 
 const ITEMS_PER_PAGE = 10;
+const API_URL = 'http://localhost:8082/api/products';
 
 export default function Products() {
+  const [dbProducts, setDbProducts] = useState([]);
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('all');
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
 
+  // Form states
+  const [formData, setFormData] = useState({
+    name: '', categoryId: '', price: '', unit: '', stock: '', status: 'active'
+  });
+
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      setDbProducts(data);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (editProduct) {
+      const cat = categories.find(c => c.name === editProduct.category);
+      setFormData({
+        name: editProduct.name || '',
+        categoryId: cat ? cat.id : '',
+        price: editProduct.price || '',
+        unit: editProduct.unit || '',
+        stock: editProduct.stock || 0,
+        status: editProduct.status || 'active'
+      });
+    } else {
+      setFormData({ name: '', categoryId: '', price: '', unit: '', stock: '', status: 'active' });
+    }
+  }, [editProduct]);
+
+  const handleSave = async () => {
+    const categoryName = categories.find(c => Number(c.id) === Number(formData.categoryId))?.name || '';
+    const productPayload = {
+      name: formData.name,
+      price: Number(formData.price),
+      unit: formData.unit,
+      category: categoryName,
+      stock: Number(formData.stock),
+      status: formData.status,
+      sold: editProduct ? editProduct.sold : 0
+    };
+
+    try {
+      if (editProduct) {
+        await fetch(`${API_URL}/${editProduct.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(productPayload)
+        });
+      } else {
+        await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(productPayload)
+        });
+      }
+      setModalOpen(false);
+      fetchProducts();
+    } catch (error) {
+      console.error('Failed to save product:', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
+    try {
+      await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      fetchProducts();
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+    }
+  };
+
   const filtered = useMemo(() => {
-    return allProducts.filter(p => {
-      const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
-      const matchCat = filterCat === 'all' || p.categoryId === Number(filterCat);
+    return dbProducts.filter(p => {
+      const matchSearch = p.name?.toLowerCase().includes(search.toLowerCase());
+      const cat = categories.find(c => c.name === p.category);
+      const categoryId = cat ? cat.id : -1;
+      const matchCat = filterCat === 'all' || categoryId === Number(filterCat);
       return matchSearch && matchCat;
     });
-  }, [search, filterCat]);
+  }, [search, filterCat, dbProducts]);
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -96,7 +178,7 @@ export default function Products() {
                     <button onClick={() => { setEditProduct(row); setModalOpen(true); }} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 cursor-pointer">
                       <Edit className="w-4 h-4" />
                     </button>
-                    <button className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 cursor-pointer">
+                    <button onClick={() => handleDelete(row.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 cursor-pointer">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -112,37 +194,37 @@ export default function Products() {
                     footer={
                       <>
                         <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer">Hủy</button>
-                        <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium cursor-pointer">{editProduct ? 'Cập nhật' : 'Thêm mới'}</button>
+                        <button onClick={handleSave} className="px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium cursor-pointer">{editProduct ? 'Cập nhật' : 'Thêm mới'}</button>
                       </>
                     }
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tên sản phẩm</label>
-              <input defaultValue={editProduct?.name || ''} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
+              <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Danh mục</label>
-              <select defaultValue={editProduct?.categoryId || ''} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+              <select value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
                 <option value="">Chọn danh mục</option>
                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Giá (VNĐ)</label>
-              <input type="number" defaultValue={editProduct?.price || ''} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
+              <input type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Đơn vị</label>
-              <input defaultValue={editProduct?.unit || ''} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
+              <input value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tồn kho</label>
-              <input type="number" defaultValue={editProduct?.stock || ''} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
+              <input type="number" value={formData.stock} onChange={e => setFormData({ ...formData, stock: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Trạng thái</label>
-              <select defaultValue={editProduct?.status || 'active'} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+              <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
                 <option value="active">Đang bán</option>
                 <option value="inactive">Ngưng bán</option>
               </select>
@@ -152,3 +234,4 @@ export default function Products() {
       </div>
   );
 }
+
