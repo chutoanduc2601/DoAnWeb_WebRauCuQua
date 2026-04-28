@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
@@ -11,26 +11,17 @@ import AuthModal from './components/AuthModal';
 import CartSidebar from './components/CartSidebar';
 import Checkout from './components/Checkout';
 import AdminLayout from './admin/AdminLayout';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function UserApp() {
   const navigate = useNavigate();
+  const { profile, signOut, isAdmin, isAuthenticated, loading } = useAuth();
+
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
   const [view, setView] = useState('home');
-
-  useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem('currentUser');
-    }
-  }, [currentUser]);
 
   const handleAddToCart = (product) => {
     setCartItems(prev => {
@@ -70,6 +61,21 @@ function UserApp() {
     setView('checkout');
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  // Tạo user object tương thích với Navbar
+  const currentUser = isAuthenticated && profile ? {
+    name: profile.name || profile.email?.split('@')[0] || 'User',
+    email: profile.email,
+    role: profile.role === 'admin' ? 'ADMIN' : 'USER',
+  } : null;
+
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-brand-500 selection:text-white">
       <AnimatePresence mode="wait">
@@ -86,7 +92,7 @@ function UserApp() {
               onOpenCart={() => setIsCartOpen(true)}
               user={currentUser}
               onOpenAuth={() => setIsAuthOpen(true)}
-              onLogout={() => setCurrentUser(null)}
+              onLogout={handleLogout}
             />
 
             <main>
@@ -110,12 +116,6 @@ function UserApp() {
             <AuthModal
               isOpen={isAuthOpen}
               onClose={() => setIsAuthOpen(false)}
-              onLogin={(userData) => {
-                setCurrentUser(userData);
-                if (userData?.role === 'ADMIN') {
-                  navigate('/admin');
-                }
-              }}
             />
 
             <CartSidebar
@@ -153,10 +153,12 @@ function UserApp() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/admin/*" element={<AdminLayout />} />
-      <Route path="/*" element={<UserApp />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path="/admin/*" element={<AdminLayout />} />
+        <Route path="/*" element={<UserApp />} />
+      </Routes>
+    </AuthProvider>
   );
 }
 

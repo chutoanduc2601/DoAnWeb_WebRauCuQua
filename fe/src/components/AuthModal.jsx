@@ -1,44 +1,62 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, Lock, User as UserIcon } from 'lucide-react';
+import { X, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-const AuthModal = ({ isOpen, onClose, onLogin }) => {
+const AuthModal = ({ isOpen, onClose }) => {
   const [isLoginView, setIsLoginView] = useState(true);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const { signIn, signUp } = useAuth();
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const endpoint = isLoginView ? '/api/auth/login' : '/api/auth/register';
-    
+    setError('');
+    setSuccessMessage('');
+    setLoading(true);
+
     try {
-      const response = await fetch('http://localhost:8082' + endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        alert(data.message);
-        if (isLoginView || !isLoginView) { // Both login and successful registration can sign in
-           onLogin(data.user);
-           onClose();
-        }
+      if (isLoginView) {
+        await signIn(formData.email, formData.password);
+        onClose();
       } else {
-        alert(data.message || 'Đã có lỗi xảy ra');
+        const data = await signUp(formData.email, formData.password, formData.name);
+
+        // Kiểm tra xem có cần xác nhận email không
+        if (data.user && !data.session) {
+          setSuccessMessage('Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.');
+        } else {
+          onClose();
+        }
       }
-    } catch (error) {
-      console.error('Auth error:', error);
-      alert('Không thể kết nối tới server!');
+    } catch (err) {
+      console.error('Auth error:', err);
+      if (err.message.includes('Invalid login credentials')) {
+        setError('Sai email hoặc mật khẩu');
+      } else if (err.message.includes('User already registered')) {
+        setError('Email đã được sử dụng');
+      } else if (err.message.includes('Password should be at least')) {
+        setError('Mật khẩu phải có ít nhất 6 ký tự');
+      } else if (err.message.includes('Unable to validate email')) {
+        setError('Email không hợp lệ');
+      } else {
+        setError(err.message || 'Đã có lỗi xảy ra');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleToggle = () => {
     setIsLoginView(!isLoginView);
     setFormData({ name: '', email: '', password: '' });
+    setError('');
+    setSuccessMessage('');
   };
 
   return (
@@ -74,6 +92,26 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
                 {isLoginView ? 'Mừng bạn trở lại với FreshGarden!' : 'Đồng hành cùng lối sống xanh khoẻ mạnh.'}
               </p>
             </div>
+
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm text-center"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            {successMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-green-600 text-sm text-center"
+              >
+                {successMessage}
+              </motion.div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -122,22 +160,19 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
                   type="password"
                   placeholder="Mật khẩu"
                   required
+                  minLength={6}
                   value={formData.password}
                   onChange={e => setFormData({ ...formData, password: e.target.value })}
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all text-slate-700 bg-slate-50 focus:bg-white"
                 />
               </div>
 
-              {isLoginView && (
-                <div className="text-right">
-                  <a href="#" className="text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors">Quên mật khẩu?</a>
-                </div>
-              )}
-
               <button
                 type="submit"
-                className="w-full py-3 mt-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all shadow-md active:scale-[0.98]"
+                disabled={loading}
+                className="w-full py-3 mt-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all shadow-md active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
+                {loading && <Loader2 size={18} className="animate-spin" />}
                 {isLoginView ? 'Đăng Nhập' : 'Đăng Ký Ngay'}
               </button>
             </form>
