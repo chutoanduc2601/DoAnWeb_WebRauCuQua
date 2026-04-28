@@ -18,7 +18,7 @@ public class Product {
     private BigDecimal price;
     private String unit;
     private String category;
-    
+
     @Column(name = "image_url")
     private String imageUrl;
 
@@ -27,4 +27,8 @@ public class Product {
     private String[] tags;
 
     private String badge;
+
+    private Integer stock = 0;
+    private Integer sold = 0;
+    private String status = "active";
 }
