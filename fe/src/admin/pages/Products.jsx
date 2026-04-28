@@ -4,7 +4,7 @@ import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 import AdminModal from '../components/AdminModal';
 import StatusBadge from '../components/StatusBadge';
-import { categories, formatCurrency } from '../admin/data/adminMockData';
+import { categories, formatCurrency } from '../data/adminMockData';
 
 const ITEMS_PER_PAGE = 10;
 const API_URL = 'http://localhost:8082/api/products';
