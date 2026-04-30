@@ -57,7 +57,7 @@ const pageVariants = {
   exit: { opacity: 0, x: -60, transition: { duration: 0.3 } },
 };
 
-const Checkout = ({ cartItems = [], onBack }) => {
+const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
   const [form, setForm] = useState({ fullName: '', phone: '', address: '' });
   const [shipping, setShipping] = useState('standard');
   const [payment, setPayment] = useState('cod');
@@ -65,6 +65,9 @@ const Checkout = ({ cartItems = [], onBack }) => {
   const [appliedDiscount, setAppliedDiscount] = useState(null);
   const [discountError, setDiscountError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [orderResult, setOrderResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const subtotal = cartItems.reduce((a, i) => a + i.price * i.quantity, 0);
   const shippingFee = SHIPPING_OPTIONS.find((o) => o.id === shipping)?.fee ?? 0;
@@ -82,9 +85,55 @@ const Checkout = ({ cartItems = [], onBack }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowSuccess(true);
+    setLoading(true);
+    setError(null);
+
+    const orderData = {
+      fullName: form.fullName,
+      phone: form.phone,
+      address: form.address,
+      shippingMethod: shipping,
+      paymentMethod: payment,
+      subtotal,
+      shippingFee,
+      discountAmount,
+      total,
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+        unit: item.unit
+      }))
+    };
+
+    try {
+      const response = await fetch('http://localhost:8082/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to place order. Please try again.');
+      }
+
+      const result = await response.json();
+      console.log('Order placed successfully:', result);
+      setOrderResult(result); // Save the full result including orderCode
+      setShowSuccess(true);
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      console.error('Error placing order:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -323,12 +372,31 @@ const Checkout = ({ cartItems = [], onBack }) => {
                   <div className="px-4 sm:px-6 pb-4 sm:pb-6">
                     <motion.button
                       type="submit"
+                      disabled={loading || cartItems.length === 0}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full py-3.5 sm:py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-sm sm:text-base rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-400/40 transition-all flex items-center justify-center gap-2"
+                      className={`w-full py-3.5 sm:py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-sm sm:text-base rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-400/40 transition-all flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
-                      Xác Nhận Đặt Hàng <ChevronRight size={16} className="sm:w-[18px] sm:h-[18px]" />
+                      {loading ? (
+                        <>
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                          />
+                          Đang xử lý...
+                        </>
+                      ) : (
+                        <>
+                          Xác Nhận Đặt Hàng <ChevronRight size={16} className="sm:w-[18px] sm:h-[18px]" />
+                        </>
+                      )}
                     </motion.button>
+                    {error && (
+                      <p className="text-red-500 text-xs mt-2 text-center font-semibold">
+                        ⚠️ {error}
+                      </p>
+                    )}
                     <p className="text-center text-slate-400 text-[10px] sm:text-xs mt-2 sm:mt-3 flex items-center justify-center gap-1">
                       <ShieldCheck size={11} className="sm:w-3 sm:h-3" /> Giao dịch được mã hoá SSL 256-bit
                     </p>
@@ -374,7 +442,11 @@ const Checkout = ({ cartItems = [], onBack }) => {
         </footer>
       </motion.div>
 
-      <SuccessModal isOpen={showSuccess} cartItems={cartItems} />
+      <SuccessModal 
+        isOpen={showSuccess} 
+        cartItems={cartItems} 
+        orderCode={orderResult?.orderCode} 
+      />
     </>
   );
 };

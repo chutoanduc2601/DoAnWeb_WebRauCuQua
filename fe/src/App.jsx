@@ -157,6 +157,12 @@ function UserApp() {
                 setView('home');
                 setIsCartOpen(true);
               }}
+              onSuccess={() => {
+                setCartItems([]);
+                setTimeout(() => {
+                   setView('home');
+                }, 3000); // Wait for modal visibility
+              }}
             />
           </motion.div>
         )}

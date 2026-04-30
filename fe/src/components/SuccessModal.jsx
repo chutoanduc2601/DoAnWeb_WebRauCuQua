@@ -8,8 +8,7 @@ const makeOrderId = () => {
   return `#FG-${num}`;
 };
 
-const SuccessModal = ({ isOpen, cartItems = [] }) => {
-  const [orderId] = useState(makeOrderId);
+const SuccessModal = ({ isOpen, cartItems = [], orderCode }) => {
   const [step, setStep] = useState(0); // 0 = animating, 1 = content visible
 
   useEffect(() => {
@@ -25,7 +24,7 @@ const SuccessModal = ({ isOpen, cartItems = [] }) => {
   };
 
   const handleTrack = () => {
-    alert(`Đơn hàng ${orderId} đang được chuẩn bị. Tính năng theo dõi sẽ ra mắt sớm! 🚚`);
+    alert(`Đơn hàng ${orderCode} đang được chuẩn bị. Tính năng theo dõi sẽ ra mắt sớm! 🚚`);
   };
 
   return (
@@ -142,7 +141,7 @@ const SuccessModal = ({ isOpen, cartItems = [] }) => {
                     {/* Order ID chip */}
                     <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold mb-4 sm:mb-6 shadow-sm">
                       <Leaf size={13} className="text-emerald-500 sm:w-[15px] sm:h-[15px]" />
-                      Mã đơn: <span className="font-mono tracking-wider">{orderId}</span>
+                      Mã đơn: <span className="font-mono tracking-wider">{orderCode}</span>
                     </div>
 
                     {/* Mini order summary */}
