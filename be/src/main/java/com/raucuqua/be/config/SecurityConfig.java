@@ -45,6 +45,8 @@ public class SecurityConfig {
             }))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/products/**").permitAll()
+                .requestMatchers("/api/orders/**").permitAll()
+                .requestMatchers("/api/categories/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));

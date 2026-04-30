@@ -10,12 +10,14 @@ import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import CartSidebar from './components/CartSidebar';
 import Checkout from './components/Checkout';
+import OrderHistory from './components/OrderHistory';
+import UserProfile from './components/UserProfile';
 import AdminLayout from './admin/AdminLayout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function UserApp() {
   const navigate = useNavigate();
-  const { profile, signOut, isAdmin, isAuthenticated, loading } = useAuth();
+  const { user, profile, signOut, isAdmin, isAuthenticated, loading } = useAuth();
 
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -70,10 +72,10 @@ function UserApp() {
   };
 
   // Tạo user object tương thích với Navbar
-  const currentUser = isAuthenticated && profile ? {
-    name: profile.name || profile.email?.split('@')[0] || 'User',
-    email: profile.email,
-    role: profile.role === 'admin' ? 'ADMIN' : 'USER',
+  const currentUser = isAuthenticated && (profile || user) ? {
+    name: profile?.name || user?.email?.split('@')[0] || 'User',
+    email: user?.email || profile?.email || '',
+    role: profile?.role === 'admin' ? 'ADMIN' : 'USER',
   } : null;
 
   return (
@@ -93,6 +95,8 @@ function UserApp() {
               user={currentUser}
               onOpenAuth={() => setIsAuthOpen(true)}
               onLogout={handleLogout}
+              onOpenHistory={() => setView('history')}
+              onOpenProfile={() => setView('profile')}
             />
 
             <main>
@@ -157,9 +161,41 @@ function UserApp() {
                 setView('home');
                 setIsCartOpen(true);
               }}
+              onSuccess={() => {
+                setCartItems([]);
+                setTimeout(() => {
+                   setView('home');
+                }, 3000); // Wait for modal visibility
+              }}
             />
           </motion.div>
         )}
+
+        {view === 'history' && (
+          <motion.div
+            key="history"
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -60 }}
+            transition={{ duration: 0.3 }}
+          >
+            <OrderHistory onBack={() => setView('home')} />
+          </motion.div>
+        )}
+
+        {view === 'profile' && (
+          <motion.div
+            key="profile"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3 }}
+          >
+            <UserProfile onBack={() => setView('home')} />
+          </motion.div>
+        )}
+
+
       </AnimatePresence>
     </div>
   );

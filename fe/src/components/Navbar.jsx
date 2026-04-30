@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Search, Leaf, User, Menu, X, Shield } from 'lucide-react';
+import { ShoppingCart, Search, Leaf, User, Menu, X, Shield, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout }) => {
+const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenHistory, onOpenProfile }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -90,10 +90,25 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout }) => {
                     </div>
                     <span className="font-semibold text-sm hidden lg:block text-slate-800">{user.name}</span>
                     {/* Dropdown Logout (Simplified) */}
-                    <div className="absolute top-full right-0 mt-2 w-32 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all border border-slate-100 py-1 overflow-hidden">
+                      <button 
+                        onClick={onOpenProfile}
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2"
+                      >
+                        <User size={16} className="text-brand-500" />
+                        Thông tin cá nhân
+                      </button>
+                      <button 
+                        onClick={onOpenHistory}
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2"
+                      >
+                        <ShoppingBag size={16} className="text-emerald-500" />
+                        Lịch sử mua hàng
+                      </button>
+                      <div className="h-px bg-slate-100 mx-3 my-1" />
                       <button 
                         onClick={onLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50 font-medium rounded-lg"
+                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-medium flex items-center gap-2"
                       >
                         Đăng Xuất
                       </button>
@@ -219,6 +234,19 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout }) => {
                         <p className="text-xs text-slate-500">{user.email}</p>
                       </div>
                     </div>
+                    <button 
+                      onClick={() => { onOpenProfile(); setMobileMenuOpen(false); }}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 text-sm text-slate-700 font-semibold bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors mb-2"
+                    >
+                      <User size={16} className="text-brand-500" /> Thông tin cá nhân
+                    </button>
+
+                    <button 
+                      onClick={() => { onOpenHistory(); setMobileMenuOpen(false); }}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 text-sm text-slate-700 font-semibold bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+                    >
+                      <ShoppingBag size={16} /> Lịch sử mua hàng
+                    </button>
                     <button 
                       onClick={() => { onLogout(); setMobileMenuOpen(false); }}
                       className="w-full py-2.5 text-sm text-red-600 font-semibold bg-red-50 hover:bg-red-100 rounded-xl transition-colors"

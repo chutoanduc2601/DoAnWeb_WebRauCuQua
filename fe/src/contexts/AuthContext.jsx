@@ -110,6 +110,22 @@ export function AuthProvider({ children }) {
     setProfile(null);
   };
 
+  // Cập nhật profile
+  const updateProfile = async (updates) => {
+    if (!user) throw new Error('Cần đăng nhập để cập nhật profile');
+    
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    setProfile(data);
+    return data;
+  };
+
   const value = {
     user,
     profile,
@@ -117,6 +133,7 @@ export function AuthProvider({ children }) {
     signUp,
     signIn,
     signOut,
+    updateProfile,
     isAdmin: profile?.role === 'admin',
     isAuthenticated: !!user,
   };
