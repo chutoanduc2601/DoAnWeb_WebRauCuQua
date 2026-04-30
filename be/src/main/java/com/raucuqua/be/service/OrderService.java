@@ -4,6 +4,8 @@ import com.raucuqua.be.dto.OrderDTO;
 import com.raucuqua.be.entity.Order;
 import com.raucuqua.be.entity.OrderItem;
 import com.raucuqua.be.repository.OrderRepository;
+import com.raucuqua.be.repository.ProfileRepository;
+import com.raucuqua.be.entity.Profile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,9 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private ProfileRepository profileRepository;
 
     @Transactional
     public Order createOrder(OrderDTO orderDTO) {
@@ -43,7 +48,23 @@ public class OrderService {
             return item;
         }).collect(Collectors.toList()));
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        // Tự động cập nhật thông tin vào Profile nếu có userId
+        if (order.getUserId() != null && !order.getUserId().isEmpty()) {
+            try {
+                java.util.UUID userUuid = java.util.UUID.fromString(order.getUserId());
+                profileRepository.findById(userUuid).ifPresent(profile -> {
+                    profile.setPhone(order.getPhone());
+                    profile.setAddress(order.getAddress());
+                    profileRepository.save(profile);
+                });
+            } catch (IllegalArgumentException e) {
+                // Bỏ qua nếu userId không phải là một UUID hợp lệ
+            }
+        }
+
+        return savedOrder;
     }
 
     public List<Order> getOrdersByUser(String userId) {

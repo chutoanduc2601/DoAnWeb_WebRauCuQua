@@ -59,7 +59,7 @@ const pageVariants = {
 };
 
 const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [form, setForm] = useState({ fullName: '', phone: '', address: '' });
   const [shipping, setShipping] = useState('standard');
   const [payment, setPayment] = useState('cod');
@@ -70,6 +70,17 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
   const [orderResult, setOrderResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Pre-fill form from profile
+  React.useEffect(() => {
+    if (profile) {
+      setForm({
+        fullName: profile.name || '',
+        phone: profile.phone || '',
+        address: profile.address || ''
+      });
+    }
+  }, [profile]);
 
   const subtotal = cartItems.reduce((a, i) => a + i.price * i.quantity, 0);
   const shippingFee = SHIPPING_OPTIONS.find((o) => o.id === shipping)?.fee ?? 0;
