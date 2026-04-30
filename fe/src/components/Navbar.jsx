@@ -37,9 +37,9 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout }) => {
   }, [mobileMenuOpen]);
 
   const navLinks = [
-    { label: 'Trang Chủ', href: '#home' },
-    { label: 'Sản Phẩm', href: '#shop' },
-    { label: 'Câu Chuyện', href: '#about' },
+    { label: 'Trang Chủ', to: '/' },
+    { label: 'Sản Phẩm', to: '/shop' },
+    { label: 'Câu Chuyện', to: '/#about' },
   ];
 
   return (
@@ -62,7 +62,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout }) => {
             {/* Nav Links (Desktop) */}
             <div className="hidden md:flex items-center gap-8 font-medium">
               {navLinks.map(link => (
-                <a key={link.href} href={link.href} className="hover:text-brand-600 transition-colors">{link.label}</a>
+                <Link key={link.to} to={link.to} className="hover:text-brand-600 transition-colors">{link.label}</Link>
               ))}
             </div>
 
@@ -181,18 +181,18 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout }) => {
                 <ul className="space-y-1">
                   {navLinks.map((link, idx) => (
                     <motion.li 
-                      key={link.href}
+                      key={link.to}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.1 + idx * 0.05 }}
                     >
-                      <a 
-                        href={link.href} 
+                      <Link 
+                        to={link.to} 
                         onClick={() => setMobileMenuOpen(false)}
                         className="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-brand-50 hover:text-brand-600 transition-colors"
                       >
                         {link.label}
-                      </a>
+                      </Link>
                     </motion.li>
                   ))}
                 </ul>
