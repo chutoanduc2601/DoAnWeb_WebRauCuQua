@@ -5,6 +5,7 @@ import {
   Tag, ChevronRight, Leaf, ShieldCheck, Clock
 } from 'lucide-react';
 import SuccessModal from './SuccessModal';
+import { useAuth } from '../contexts/AuthContext';
 
 const formatVND = (n) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
@@ -58,6 +59,7 @@ const pageVariants = {
 };
 
 const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
+  const { user } = useAuth();
   const [form, setForm] = useState({ fullName: '', phone: '', address: '' });
   const [shipping, setShipping] = useState('standard');
   const [payment, setPayment] = useState('cod');
@@ -94,6 +96,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
       fullName: form.fullName,
       phone: form.phone,
       address: form.address,
+      userId: user?.id,
       shippingMethod: shipping,
       paymentMethod: payment,
       subtotal,

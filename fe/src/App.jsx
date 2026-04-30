@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import CartSidebar from './components/CartSidebar';
 import Checkout from './components/Checkout';
+import OrderHistory from './components/OrderHistory';
 import AdminLayout from './admin/AdminLayout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
@@ -93,6 +94,7 @@ function UserApp() {
               user={currentUser}
               onOpenAuth={() => setIsAuthOpen(true)}
               onLogout={handleLogout}
+              onOpenHistory={() => setView('history')}
             />
 
             <main>
@@ -164,6 +166,18 @@ function UserApp() {
                 }, 3000); // Wait for modal visibility
               }}
             />
+          </motion.div>
+        )}
+
+        {view === 'history' && (
+          <motion.div
+            key="history"
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -60 }}
+            transition={{ duration: 0.3 }}
+          >
+            <OrderHistory onBack={() => setView('home')} />
           </motion.div>
         )}
       </AnimatePresence>

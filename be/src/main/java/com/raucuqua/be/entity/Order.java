@@ -20,6 +20,7 @@ public class Order {
     private String fullName;
     private String phone;
     private String address;
+    private String userId; // Thêm trường này để lưu ID người dùng từ Supabase
     private String shippingMethod;
     private String paymentMethod;
     

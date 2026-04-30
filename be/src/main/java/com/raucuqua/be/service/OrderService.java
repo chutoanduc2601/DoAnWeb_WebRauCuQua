@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +23,7 @@ public class OrderService {
         order.setFullName(orderDTO.getFullName());
         order.setPhone(orderDTO.getPhone());
         order.setAddress(orderDTO.getAddress());
+        order.setUserId(orderDTO.getUserId());
         order.setShippingMethod(orderDTO.getShippingMethod());
         order.setPaymentMethod(orderDTO.getPaymentMethod());
         order.setSubtotal(orderDTO.getSubtotal());
@@ -42,5 +44,9 @@ public class OrderService {
         }).collect(Collectors.toList()));
 
         return orderRepository.save(order);
+    }
+
+    public List<Order> getOrdersByUser(String userId) {
+        return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 }

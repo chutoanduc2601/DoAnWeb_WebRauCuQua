@@ -8,6 +8,7 @@ public class OrderDTO {
     private String fullName;
     private String phone;
     private String address;
+    private String userId;
     private String shippingMethod;
     private String paymentMethod;
     private Double subtotal;
