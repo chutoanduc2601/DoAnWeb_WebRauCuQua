@@ -96,12 +96,26 @@ function UserApp() {
             />
 
             <main>
-              <HeroSection />
-              <StorySection />
-              <Shop
-                onAddToCart={handleAddToCart}
-                onProductClick={handleProductClick}
-              />
+              <Routes>
+                <Route path="/" element={
+                  <>
+                    <HeroSection />
+                    <StorySection />
+                    <Shop
+                      onAddToCart={handleAddToCart}
+                      onProductClick={handleProductClick}
+                    />
+                  </>
+                } />
+                <Route path="/shop" element={
+                  <div className="pt-24 pb-12">
+                    <Shop
+                      onAddToCart={handleAddToCart}
+                      onProductClick={handleProductClick}
+                    />
+                  </div>
+                } />
+              </Routes>
             </main>
 
             <Footer />
