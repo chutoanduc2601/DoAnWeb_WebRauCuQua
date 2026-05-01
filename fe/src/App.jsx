@@ -12,6 +12,7 @@ import CartSidebar from './components/CartSidebar';
 import Checkout from './components/Checkout';
 import OrderHistory from './components/OrderHistory';
 import UserProfile from './components/UserProfile';
+import SalesNotification from './components/SalesNotification';
 import AdminLayout from './admin/AdminLayout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
@@ -198,6 +199,7 @@ function UserApp() {
 
 
       </AnimatePresence>
+      <SalesNotification />
     </div>
   );
 }
