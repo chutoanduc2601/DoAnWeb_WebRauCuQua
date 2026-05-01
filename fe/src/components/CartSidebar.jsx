@@ -81,14 +81,22 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                             {/* Quantity Controls */}
                             <div className="flex items-center bg-slate-100 rounded-lg p-0.5 sm:p-1 gap-2 sm:gap-3">
                               <button 
-                                onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                                onClick={() => {
+                                  const step = item.unit === 'kg' ? 0.1 : 1;
+                                  onUpdateQuantity(item.id, Math.max(step, item.quantity - step));
+                                }}
                                 className="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-50 text-slate-600 shadow-sm transition-colors"
                               >
                                 <Minus size={12} className="sm:w-[14px] sm:h-[14px]" />
                               </button>
-                              <span className="font-bold text-xs sm:text-sm text-slate-700 min-w-[16px] text-center">{item.quantity}</span>
+                              <span className="font-bold text-xs sm:text-sm text-slate-700 min-w-[32px] text-center">
+                                {item.unit === 'kg' ? `${item.quantity.toFixed(1)}` : item.quantity}
+                              </span>
                               <button 
-                                onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                                onClick={() => {
+                                  const step = item.unit === 'kg' ? 0.1 : 1;
+                                  onUpdateQuantity(item.id, item.quantity + step);
+                                }}
                                 className="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-50 text-slate-600 shadow-sm transition-colors"
                               >
                                 <Plus size={12} className="sm:w-[14px] sm:h-[14px]" />

@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag, Check } from 'lucide-react';
 
 const ProductDetail = ({ product, isOpen, onClose, onAddToCart }) => {
+  const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    if (product) {
+      setQuantity(product.unit === 'kg' ? 0.5 : 1);
+    }
+  }, [product, isOpen]);
+
   if (!product) return null;
 
   return (
@@ -93,10 +101,59 @@ const ProductDetail = ({ product, isOpen, onClose, onAddToCart }) => {
                 </div>
               </div>
 
+              {/* Quantity/Weight Selection */}
+              <div className="mb-8">
+                <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                   Số lượng / Khối lượng
+                </h3>
+                
+                {product.unit === 'kg' ? (
+                  <div className="grid grid-cols-4 gap-2">
+                    {[0.2, 0.5, 1].map(w => (
+                      <button
+                        key={w}
+                        onClick={() => setQuantity(w)}
+                        className={`py-2 rounded-xl border-2 font-bold transition-all ${
+                          quantity === w 
+                            ? 'border-brand-500 bg-brand-50 text-brand-700' 
+                            : 'border-slate-100 hover:border-slate-200 text-slate-500'
+                        }`}
+                      >
+                        {w < 1 ? `${w * 1000}g` : `${w}kg`}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-4">
+                    <button 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-12 h-12 rounded-xl border-2 border-slate-100 flex items-center justify-center font-bold text-xl hover:bg-slate-50"
+                    >
+                      -
+                    </button>
+                    <span className="text-xl font-bold w-12 text-center">{quantity}</span>
+                    <button 
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-12 h-12 rounded-xl border-2 border-slate-100 flex items-center justify-center font-bold text-xl hover:bg-slate-50"
+                    >
+                      +
+                    </button>
+                    <span className="text-slate-500 font-medium">{product.unit}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between mb-8 p-4 bg-brand-50 rounded-2xl border border-brand-100">
+                <span className="font-bold text-brand-800">Tổng cộng:</span>
+                <span className="text-2xl font-black text-brand-600">
+                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price * quantity)}
+                </span>
+              </div>
+
               {/* CTA */}
               <button 
                 onClick={() => {
-                  onAddToCart(product);
+                  onAddToCart({ ...product, quantity });
                   onClose();
                 }}
                 className="w-full py-3.5 sm:py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-500/30 hover:-translate-y-1"

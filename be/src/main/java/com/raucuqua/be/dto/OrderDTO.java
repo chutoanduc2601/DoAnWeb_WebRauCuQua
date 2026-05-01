@@ -22,7 +22,7 @@ public class OrderDTO {
         private Long id; // This is the product ID from frontend
         private String name;
         private Double price;
-        private Integer quantity;
+        private Double quantity;
         private String image;
         private String unit;
     }
