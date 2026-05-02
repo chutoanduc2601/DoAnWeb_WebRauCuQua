@@ -69,32 +69,4 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    @Autowired
-    private com.raucuqua.be.repository.CategoryRepository categoryRepository;
-
-    @GetMapping("/fix-categories")
-    public String fixCategories() {
-        List<com.raucuqua.be.entity.Category> cats = categoryRepository.findAll();
-        com.raucuqua.be.entity.Category rau = cats.stream().filter(c -> c.getName().toLowerCase().contains("rau")).findFirst().orElse(null);
-        com.raucuqua.be.entity.Category cu = cats.stream().filter(c -> c.getName().toLowerCase().contains("củ") || c.getName().toLowerCase().contains("cu")).findFirst().orElse(null);
-        com.raucuqua.be.entity.Category trai = cats.stream().filter(c -> c.getName().toLowerCase().contains("trái")).findFirst().orElse(null);
-        com.raucuqua.be.entity.Category gia = cats.stream().filter(c -> c.getName().toLowerCase().contains("gia")).findFirst().orElse(null);
-
-        List<Product> products = productRepository.findAll();
-        for (Product p : products) {
-            String name = p.getName().toLowerCase();
-            if (name.contains("súp lơ") || name.contains("rau") || name.contains("cải") || name.contains("xà lách") || name.contains("hành") || name.contains("măng tây")) {
-                p.setCategory(rau);
-            } else if (name.contains("cà rốt") || name.contains("khoai") || name.contains("dền") || name.contains("su su") || name.contains("củ") || name.contains("mướp") || name.contains("khổ qua") || name.contains("nấm")) {
-                p.setCategory(cu);
-            } else if (name.contains("tỏi") || name.contains("ớt")) {
-                p.setCategory(gia);
-            } else {
-                p.setCategory(trai); // Táo, chuối, cam, xoài...
-            }
-        }
-        productRepository.saveAll(products);
-        return "Fixed categories for " + products.size() + " products.";
-    }
 }

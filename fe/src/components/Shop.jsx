@@ -11,6 +11,7 @@ const Shop = ({ onAddToCart, onProductClick }) => {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+  const [displayCount, setDisplayCount] = useState(20);
 
   // Fetch Categories
   useEffect(() => {
@@ -48,6 +49,7 @@ const Shop = ({ onAddToCart, onProductClick }) => {
           tags: item.tags || []
         }));
         setProducts(formattedData);
+        setDisplayCount(20);
         setLoading(false);
       })
       .catch(err => {
@@ -256,7 +258,7 @@ const Shop = ({ onAddToCart, onProductClick }) => {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {products.map(product => (
+                {products.slice(0, displayCount).map(product => (
                   <ProductCard 
                     key={product.id} 
                     product={product} 
@@ -267,9 +269,12 @@ const Shop = ({ onAddToCart, onProductClick }) => {
               </div>
             )}
             
-            {!loading && products.length > 0 && (
+            {!loading && products.length > displayCount && (
               <div className="text-center mt-12 sm:mt-16">
-                <button className="px-10 py-4 rounded-2xl bg-white border-2 border-slate-200 text-slate-700 font-bold hover:border-brand-600 hover:text-brand-600 hover:shadow-xl hover:shadow-brand-500/10 transition-all active:scale-95">
+                <button 
+                  onClick={() => setDisplayCount(prev => prev + 20)}
+                  className="px-10 py-4 rounded-2xl bg-white border-2 border-slate-200 text-slate-700 font-bold hover:border-brand-600 hover:text-brand-600 hover:shadow-xl hover:shadow-brand-500/10 transition-all active:scale-95"
+                >
                   Xem Thêm Sản Phẩm
                 </button>
               </div>
