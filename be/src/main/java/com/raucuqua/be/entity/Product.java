@@ -30,7 +30,7 @@ public class Product {
 
     private String badge;
 
-    private Integer stock = 0;
-    private Integer sold = 0;
+    private Double stock = 0.0;
+    private Double sold = 0.0;
     private String status = "active";
 }
