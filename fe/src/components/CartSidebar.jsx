@@ -93,23 +93,23 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                                                             <div className="flex items-center">
                                                                 <input
                                                                     type="number"
-                                                                    min={item.unit === 'kg' ? 0 : 1}
-                                                                    value={item.quantity ? (item.unit === 'kg' ? Math.round(item.quantity * 1000) : item.quantity) : ''}
+                                                                    min={item.unit === 'kg' ? 0.1 : 1}
+                                                                    step={item.unit === 'kg' ? 0.1 : 1}
+                                                                    value={item.quantity || ''}
                                                                     onChange={(e) => {
                                                                         const val = e.target.value;
                                                                         if (val === '') {
-                                                                            // allow empty while typing, handle downstream or default to 0
                                                                             onUpdateQuantity(item.id, 0); 
                                                                         } else {
-                                                                            const parsed = parseInt(val);
+                                                                            const parsed = parseFloat(val);
                                                                             if (!isNaN(parsed)) {
-                                                                                onUpdateQuantity(item.id, item.unit === 'kg' ? parsed / 1000 : parsed);
+                                                                                onUpdateQuantity(item.id, parsed);
                                                                             }
                                                                         }
                                                                     }}
-                                                                    className="w-10 sm:w-12 bg-transparent text-center font-bold text-xs sm:text-sm text-slate-700 focus:outline-none"
+                                                                    className="w-12 sm:w-14 bg-transparent text-center font-bold text-xs sm:text-sm text-slate-700 focus:outline-none"
                                                                 />
-                                                                {item.unit === 'kg' && <span className="text-[10px] sm:text-xs text-slate-500 font-medium pr-1">g</span>}
+                                                                <span className="text-[10px] sm:text-xs text-slate-500 font-medium pr-1">{item.unit}</span>
                                                             </div>
                                                             <button
                                                                 onClick={() => {
