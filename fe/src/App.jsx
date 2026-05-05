@@ -13,6 +13,7 @@ import Checkout from './components/Checkout';
 import OrderHistory from './components/OrderHistory';
 import UserProfile from './components/UserProfile';
 import SalesNotification from './components/SalesNotification';
+import PromotionsUser from './components/PromotionsUser';
 import AdminLayout from './admin/AdminLayout';
 import ResetPassword from './components/ResetPassword';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -100,6 +101,7 @@ function UserApp() {
               onLogout={handleLogout}
               onOpenHistory={() => setView('history')}
               onOpenProfile={() => setView('profile')}
+              onOpenPromotions={() => setView('promotions')}
             />
 
             <main>
@@ -196,6 +198,12 @@ function UserApp() {
           >
             <UserProfile onBack={() => setView('home')} />
           </motion.div>
+        )}
+
+        {view === 'promotions' && (
+          <div key="promotions">
+            <PromotionsUser onBack={() => setView('home')} />
+          </div>
         )}
 
 
