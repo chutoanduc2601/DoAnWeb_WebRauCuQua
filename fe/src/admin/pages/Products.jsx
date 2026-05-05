@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, Image as ImageIcon } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 import AdminModal from '../components/AdminModal';
@@ -147,11 +147,15 @@ export default function Products() {
       key: 'name', label: 'Sản phẩm',
       render: (val, row) => (
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0">
-              <Package className="w-5 h-5 text-brand-500" />
+            <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-600">
+              {row.imageUrl ? (
+                <img src={row.imageUrl} alt={val} className="w-full h-full object-cover" />
+              ) : (
+                <Package className="w-5 h-5 text-slate-400" />
+              )}
             </div>
             <div>
-              <p className="font-medium text-slate-900 dark:text-white text-sm">{val}</p>
+              <p className="font-medium text-slate-900 dark:text-white text-sm line-clamp-1">{val}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">{row.category?.name || 'N/A'}</p>
             </div>
           </div>
@@ -232,7 +236,7 @@ export default function Products() {
                       </>
                     }
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tên sản phẩm</label>
               <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
@@ -244,6 +248,31 @@ export default function Products() {
                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ảnh sản phẩm (URL)</label>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <input 
+                  value={formData.imageUrl} 
+                  onChange={e => setFormData({ ...formData, imageUrl: e.target.value })} 
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" 
+                />
+                <p className="text-[10px] text-slate-400 mt-1 italic">* Dán link ảnh từ Supabase hoặc các nguồn ảnh khác.</p>
+              </div>
+              <div className="w-16 h-16 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                {formData.imageUrl ? (
+                  <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => e.target.src='https://via.placeholder.com/150?text=Error'} />
+                ) : (
+                  <ImageIcon className="w-6 h-6 text-slate-300" />
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Giá (VNĐ)</label>
               <input type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
