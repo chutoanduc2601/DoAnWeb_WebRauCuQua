@@ -19,8 +19,29 @@ public class ProfileController {
     private ProfileRepository profileRepository;
 
     @GetMapping
-    public ResponseEntity<List<Profile>> getAllProfiles() {
-        return ResponseEntity.ok(profileRepository.findAll());
+    public ResponseEntity<java.util.List<Profile>> getAllProfiles(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String email) {
+        
+        java.util.List<Profile> allProfiles = profileRepository.findAll();
+
+        if (email != null && !email.isEmpty()) {
+            String targetEmail = email.trim().toLowerCase();
+            java.util.List<Profile> found = allProfiles.stream()
+                .filter(p -> p.getEmail() != null && p.getEmail().trim().toLowerCase().equals(targetEmail))
+                .collect(java.util.stream.Collectors.toList());
+            return ResponseEntity.ok(found);
+        }
+
+        if ("internal".equals(type)) {
+            java.util.List<Profile> internal = allProfiles.stream()
+                .filter(p -> p.getRole() != null && 
+                       (p.getRole().equalsIgnoreCase("admin") || p.getRole().equalsIgnoreCase("staff")))
+                .collect(java.util.stream.Collectors.toList());
+            return ResponseEntity.ok(internal);
+        }
+        
+        return ResponseEntity.ok(allProfiles);
     }
 
     @GetMapping("/{id}")
@@ -38,11 +59,9 @@ public class ProfileController {
             profile.setName(profileDetails.getName());
             profile.setPhone(profileDetails.getPhone());
             profile.setAddress(profileDetails.getAddress());
-            // Role and email usually shouldn't be edited by user directly in this way, 
-            // but for simplicity we can allow name, phone, address.
+            profile.setRole(profileDetails.getRole());
             return ResponseEntity.ok(profileRepository.save(profile));
         } else {
-            // Create profile if it doesn't exist
             profileDetails.setId(id);
             return ResponseEntity.ok(profileRepository.save(profileDetails));
         }
