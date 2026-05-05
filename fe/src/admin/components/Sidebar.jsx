@@ -30,7 +30,7 @@ export default function Sidebar({ isOpen, onClose }) {
               <Leaf className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-bold text-slate-900 dark:text-white text-sm">FreshGarden</span>
+              <span className="font-bold text-slate-900 dark:text-white text-sm">Farmily</span>
               <span className="text-[10px] ml-1 text-brand-600 dark:text-brand-400 font-semibold">Admin</span>
             </div>
           </Link>

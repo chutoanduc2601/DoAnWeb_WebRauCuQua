@@ -42,7 +42,7 @@ const HeroSection = () => {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="text-base sm:text-lg md:text-xl text-slate-600 max-w-lg leading-relaxed"
           >
-            Nâng tầm lối sống lành mạnh với nguồn thực phẩm chất lượng cao. FreshGarden mang đến giải pháp dinh dưỡng tối ưu cho thế hệ mới.
+            Nâng tầm lối sống lành mạnh với nguồn thực phẩm chất lượng cao. Farmily mang đến giải pháp dinh dưỡng tối ưu cho thế hệ mới.
           </motion.p>
           
           <motion.div 

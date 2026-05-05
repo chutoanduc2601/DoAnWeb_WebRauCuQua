@@ -126,6 +126,24 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  // Khôi phục mật khẩu (Gửi email)
+  const resetPassword = async (email) => {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  // Cập nhật mật khẩu mới
+  const updatePassword = async (newPassword) => {
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+    if (error) throw error;
+    return data;
+  };
+
   const value = {
     user,
     profile,
@@ -134,6 +152,8 @@ export function AuthProvider({ children }) {
     signIn,
     signOut,
     updateProfile,
+    resetPassword,
+    updatePassword,
     isAdmin: profile?.role === 'admin',
     isAuthenticated: !!user,
   };

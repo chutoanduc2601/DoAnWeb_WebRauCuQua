@@ -4,13 +4,13 @@ import { X, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const AuthModal = ({ isOpen, onClose }) => {
-  const [isLoginView, setIsLoginView] = useState(true);
+  const [viewMode, setViewMode] = useState('login'); // 'login', 'register', 'forgot_password'
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
 
   if (!isOpen) return null;
 
@@ -21,18 +21,20 @@ const AuthModal = ({ isOpen, onClose }) => {
     setLoading(true);
 
     try {
-      if (isLoginView) {
+      if (viewMode === 'login') {
         await signIn(formData.email, formData.password);
         onClose();
-      } else {
+      } else if (viewMode === 'register') {
         const data = await signUp(formData.email, formData.password, formData.name);
 
-        // Kiểm tra xem có cần xác nhận email không
         if (data.user && !data.session) {
           setSuccessMessage('Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.');
         } else {
           onClose();
         }
+      } else if (viewMode === 'forgot_password') {
+        await resetPassword(formData.email);
+        setSuccessMessage('Đường dẫn khôi phục mật khẩu đã được gửi đến email của bạn.');
       }
     } catch (err) {
       console.error('Auth error:', err);
@@ -53,8 +55,15 @@ const AuthModal = ({ isOpen, onClose }) => {
   };
 
   const handleToggle = () => {
-    setIsLoginView(!isLoginView);
+    setViewMode(viewMode === 'login' ? 'register' : 'login');
     setFormData({ name: '', email: '', password: '' });
+    setError('');
+    setSuccessMessage('');
+  };
+
+  const switchToForgot = (e) => {
+    e.preventDefault();
+    setViewMode('forgot_password');
     setError('');
     setSuccessMessage('');
   };
@@ -86,10 +95,14 @@ const AuthModal = ({ isOpen, onClose }) => {
 
             <div className="mb-8 text-center relative z-0">
               <h2 className="text-3xl font-bold text-slate-800 tracking-tight">
-                {isLoginView ? 'Đăng Nhập' : 'Mở Tài Khoản'}
+                {viewMode === 'login' && 'Đăng Nhập'}
+                {viewMode === 'register' && 'Mở Tài Khoản'}
+                {viewMode === 'forgot_password' && 'Quên Mật Khẩu'}
               </h2>
               <p className="text-slate-500 mt-2 text-sm">
-                {isLoginView ? 'Mừng bạn trở lại với FreshGarden!' : 'Đồng hành cùng lối sống xanh khoẻ mạnh.'}
+                {viewMode === 'login' && 'Mừng bạn trở lại với Farmily!'}
+                {viewMode === 'register' && 'Đồng hành cùng lối sống xanh khoẻ mạnh.'}
+                {viewMode === 'forgot_password' && 'Nhập email để nhận liên kết khôi phục.'}
               </p>
             </div>
 
@@ -116,7 +129,7 @@ const AuthModal = ({ isOpen, onClose }) => {
             <form onSubmit={handleSubmit} className="space-y-4">
 
               <AnimatePresence mode="popLayout">
-                {!isLoginView && (
+                {viewMode === 'register' && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
@@ -129,7 +142,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                     <input
                       type="text"
                       placeholder="Họ Tên Của Bạn"
-                      required={!isLoginView}
+                      required={viewMode === 'register'}
                       value={formData.name}
                       onChange={e => setFormData({ ...formData, name: e.target.value })}
                       className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all text-slate-700 bg-slate-50 focus:bg-white"
@@ -152,20 +165,41 @@ const AuthModal = ({ isOpen, onClose }) => {
                 />
               </div>
 
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <Lock size={18} />
+              <AnimatePresence mode="popLayout">
+                {viewMode !== 'forgot_password' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="relative"
+                  >
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                      <Lock size={18} />
+                    </div>
+                    <input
+                      type="password"
+                      placeholder="Mật khẩu"
+                      required={viewMode !== 'forgot_password'}
+                      minLength={6}
+                      value={formData.password}
+                      onChange={e => setFormData({ ...formData, password: e.target.value })}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all text-slate-700 bg-slate-50 focus:bg-white"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {viewMode === 'login' && (
+                <div className="flex justify-end pt-1">
+                  <button
+                    type="button"
+                    onClick={switchToForgot}
+                    className="text-sm font-semibold text-brand-600 hover:text-brand-700 transition-colors"
+                  >
+                    Quên mật khẩu?
+                  </button>
                 </div>
-                <input
-                  type="password"
-                  placeholder="Mật khẩu"
-                  required
-                  minLength={6}
-                  value={formData.password}
-                  onChange={e => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all text-slate-700 bg-slate-50 focus:bg-white"
-                />
-              </div>
+              )}
 
               <button
                 type="submit"
@@ -173,18 +207,31 @@ const AuthModal = ({ isOpen, onClose }) => {
                 className="w-full py-3 mt-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all shadow-md active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading && <Loader2 size={18} className="animate-spin" />}
-                {isLoginView ? 'Đăng Nhập' : 'Đăng Ký Ngay'}
+                {viewMode === 'login' && 'Đăng Nhập'}
+                {viewMode === 'register' && 'Đăng Ký Ngay'}
+                {viewMode === 'forgot_password' && 'Gửi Liên Kết Khôi Phục'}
               </button>
             </form>
 
             <div className="mt-8 text-center text-sm text-slate-500 border-t border-slate-100 pt-6">
-              {isLoginView ? 'Chưa có tài khoản? ' : 'Đã có tài khoản! '}
-              <button
-                onClick={handleToggle}
-                className="font-bold text-brand-600 hover:text-brand-700 transition-colors outline-none"
-              >
-                {isLoginView ? 'Đăng ký' : 'Đăng nhập'}
-              </button>
+              {viewMode === 'forgot_password' ? (
+                <button
+                  onClick={() => { setViewMode('login'); setError(''); setSuccessMessage(''); }}
+                  className="font-bold text-brand-600 hover:text-brand-700 transition-colors outline-none"
+                >
+                  Quay lại đăng nhập
+                </button>
+              ) : (
+                <>
+                  {viewMode === 'login' ? 'Chưa có tài khoản? ' : 'Đã có tài khoản! '}
+                  <button
+                    onClick={handleToggle}
+                    className="font-bold text-brand-600 hover:text-brand-700 transition-colors outline-none"
+                  >
+                    {viewMode === 'login' ? 'Đăng ký' : 'Đăng nhập'}
+                  </button>
+                </>
+              )}
             </div>
 
           </motion.div>

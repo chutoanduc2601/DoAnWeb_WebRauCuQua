@@ -135,7 +135,7 @@ const SuccessModal = ({ isOpen, cartItems = [], orderCode }) => {
                     <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
                       Đơn hàng của bạn đang được chuẩn bị.
                       <br />
-                      FreshGarden sẽ giao tươi đến tận cửa nhà bạn!
+                      Farmily sẽ giao tươi đến tận cửa nhà bạn!
                     </p>
 
                     {/* Order ID chip */}

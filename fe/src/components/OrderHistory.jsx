@@ -77,7 +77,7 @@ const OrderHistory = ({ onBack }) => {
           </button>
           <div className="flex items-center gap-2 text-emerald-700 font-bold text-xl">
             <Leaf size={24} className="text-emerald-500" />
-            <span className="hidden sm:inline">FreshGarden</span>
+            <span className="hidden sm:inline">Farmily</span>
           </div>
           <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
             {user?.email?.charAt(0).toUpperCase()}
@@ -110,7 +110,7 @@ const OrderHistory = ({ onBack }) => {
               <ShoppingBag size={40} />
             </div>
             <h3 className="text-xl font-bold text-slate-800 mb-2">Chưa có đơn hàng nào</h3>
-            <p className="text-slate-500 mb-8 max-w-xs">Có vẻ như bạn chưa đặt món quà xanh nào từ FreshGarden.</p>
+            <p className="text-slate-500 mb-8 max-w-xs">Có vẻ như bạn chưa đặt món quà xanh nào từ Farmily.</p>
             <button 
               onClick={onBack}
               className="px-8 py-3 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200"

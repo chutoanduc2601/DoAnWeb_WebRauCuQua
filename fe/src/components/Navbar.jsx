@@ -54,10 +54,10 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
           <div className={`flex items-center justify-between rounded-2xl px-4 sm:px-6 py-2.5 sm:py-3 transition-all duration-300 ${scrolled ? 'glass' : 'bg-transparent text-slate-800'}`}>
             
             {/* Logo */}
-            <div className="flex items-center gap-2 cursor-pointer text-brand-600">
+            <Link to="/" className="flex items-center gap-2 cursor-pointer text-brand-600 hover:opacity-80 transition-opacity">
               <Leaf size={24} className="text-brand-600 sm:w-7 sm:h-7" />
-              <span className="font-bold text-lg sm:text-xl tracking-tight">FreshGarden</span>
-            </div>
+              <span className="font-bold text-lg sm:text-xl tracking-tight">Farmily</span>
+            </Link>
 
             {/* Nav Links (Desktop) */}
             <div className="hidden md:flex items-center gap-8 font-medium">
@@ -179,10 +179,10 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
             >
               {/* Menu Header */}
               <div className="flex items-center justify-between p-5 border-b border-slate-100">
-                <div className="flex items-center gap-2 text-brand-600">
+                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-brand-600 hover:opacity-80 transition-opacity">
                   <Leaf size={24} />
-                  <span className="font-bold text-lg">FreshGarden</span>
-                </div>
+                  <span className="font-bold text-lg">Farmily</span>
+                </Link>
                 <button 
                   onClick={() => setMobileMenuOpen(false)}
                   className="p-2 hover:bg-slate-100 rounded-full transition-colors"
