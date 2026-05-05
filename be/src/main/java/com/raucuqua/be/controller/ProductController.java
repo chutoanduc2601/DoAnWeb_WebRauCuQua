@@ -28,6 +28,17 @@ public class ProductController {
         return productRepository.findByFilters(name, categoryId, minPrice, maxPrice);
     }
 
+    @GetMapping("/paged")
+    public org.springframework.data.domain.Page<Product> getProductsPaged(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by("id").descending());
+        return productRepository.findByFiltersPaged(name, categoryId, pageable);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Optional<Product> product = productRepository.findById(id);

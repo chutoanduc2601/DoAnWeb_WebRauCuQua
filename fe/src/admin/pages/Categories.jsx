@@ -34,23 +34,33 @@ export default function Categories() {
   }, [editCat]);
 
   const handleSave = async () => {
+    if (!formData.name.trim()) {
+      alert('Vui lòng nhập tên danh mục!');
+      return;
+    }
+    
     try {
+      let res;
       if (editCat) {
-        await fetch(`${API_URL}/${editCat.id}`, {
+        res = await fetch(`${API_URL}/${editCat.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         });
       } else {
-        await fetch(API_URL, {
+        res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         });
       }
+
+      if (!res.ok) throw new Error('Cannot save category');
+
       setModalOpen(false);
       fetchCategories();
     } catch (error) {
+      alert('Không thể lưu danh mục. Vui lòng kiểm tra lại thông tin.');
       console.error('Lỗi lưu danh mục:', error);
     }
   };
@@ -58,10 +68,12 @@ export default function Categories() {
   const handleDelete = async () => {
     if (!deleteConfirm) return;
     try {
-      await fetch(`${API_URL}/${deleteConfirm.id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/${deleteConfirm.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Cannot delete category');
       setDeleteConfirm(null);
       fetchCategories();
     } catch (error) {
+      alert('Không thể xóa danh mục này (có thể đang chứa sản phẩm).');
       console.error('Lỗi xóa danh mục:', error);
     }
   };

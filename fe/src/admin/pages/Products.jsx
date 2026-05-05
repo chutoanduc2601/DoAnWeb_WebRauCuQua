@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
@@ -11,6 +11,8 @@ const API_URL = 'http://localhost:8082/api/products';
 
 export default function Products() {
   const [dbProducts, setDbProducts] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('all');
   const [page, setPage] = useState(1);
@@ -25,11 +27,23 @@ export default function Products() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(API_URL);
+      const catParam = filterCat === 'all' ? '' : `&categoryId=${filterCat}`;
+      const searchParam = search ? `&name=${encodeURIComponent(search)}` : '';
+      const res = await fetch(`${API_URL}/paged?page=${page - 1}&size=${ITEMS_PER_PAGE}${searchParam}${catParam}`);
       const data = await res.json();
-      setDbProducts(Array.isArray(data) ? data : []);
+      
+      if (data && data.content) {
+        setDbProducts(data.content);
+        setTotalPages(data.totalPages || 1);
+        setTotalItems(data.totalElements || 0);
+      } else {
+        setDbProducts(Array.isArray(data) ? data : []);
+        setTotalPages(1);
+        setTotalItems(0);
+      }
     } catch (error) {
       console.error('Failed to fetch products:', error);
+      setDbProducts([]);
     }
   };
 
@@ -44,9 +58,17 @@ export default function Products() {
   };
 
   useEffect(() => {
-    fetchProducts();
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    // Fetch products when page, search, or filter changes
+    // Using a simple timeout for debouncing search
+    const timer = setTimeout(() => {
+      fetchProducts();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [page, search, filterCat]);
 
   useEffect(() => {
     if (editProduct) {
@@ -64,6 +86,11 @@ export default function Products() {
   }, [editProduct]);
 
   const handleSave = async () => {
+    if (!formData.name.trim() || !formData.categoryId || !formData.price) {
+      alert('Vui lòng nhập tên, giá và chọn danh mục sản phẩm!');
+      return;
+    }
+
     const productPayload = {
       name: formData.name,
       price: Number(formData.price),
@@ -71,26 +98,34 @@ export default function Products() {
       category: { id: Number(formData.categoryId) },
       stock: Number(formData.stock),
       status: formData.status,
-      sold: editProduct ? editProduct.sold : 0
+      sold: editProduct ? editProduct.sold : 0,
+      imageUrl: editProduct ? editProduct.imageUrl : null,
+      tags: editProduct ? editProduct.tags : null,
+      badge: editProduct ? editProduct.badge : null
     };
 
     try {
+      let res;
       if (editProduct) {
-        await fetch(`${API_URL}/${editProduct.id}`, {
+        res = await fetch(`${API_URL}/${editProduct.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productPayload)
         });
       } else {
-        await fetch(API_URL, {
+        res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productPayload)
         });
       }
+      
+      if (!res.ok) throw new Error('Cannot save product');
+      
       setModalOpen(false);
       fetchProducts();
     } catch (error) {
+      alert('Không thể lưu sản phẩm. Vui lòng kiểm tra lại thông tin.');
       console.error('Failed to save product:', error);
     }
   };
@@ -98,24 +133,14 @@ export default function Products() {
   const handleDelete = async (id) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
     try {
-      await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Cannot delete product');
       fetchProducts();
     } catch (error) {
+      alert('Không thể xóa sản phẩm này (có thể đang có trong đơn hàng).');
       console.error('Failed to delete product:', error);
     }
   };
-
-  const filtered = useMemo(() => {
-    return dbProducts.filter(p => {
-      const matchSearch = search === '' || (p.name && p.name.toLowerCase().includes(search.toLowerCase()));
-      const categoryId = p.category?.id || -1;
-      const matchCat = filterCat === 'all' || categoryId === Number(filterCat);
-      return matchSearch && matchCat;
-    });
-  }, [search, filterCat, dbProducts, categories]);
-
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
-  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const columns = [
     {
@@ -181,7 +206,7 @@ export default function Products() {
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
           <DataTable
               columns={columns}
-              data={paginated}
+              data={dbProducts}
               renderActions={(row) => (
                   <div className="flex items-center justify-end gap-1">
                     <button onClick={() => { setEditProduct(row); setModalOpen(true); }} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 cursor-pointer">
@@ -194,7 +219,7 @@ export default function Products() {
               )}
           />
           <div className="px-4 pb-4">
-            <Pagination currentPage={page} totalPages={totalPages} totalItems={filtered.length} itemsPerPage={ITEMS_PER_PAGE} onPageChange={setPage} />
+            <Pagination currentPage={page} totalPages={totalPages} totalItems={totalItems} itemsPerPage={ITEMS_PER_PAGE} onPageChange={setPage} />
           </div>
         </div>
 
