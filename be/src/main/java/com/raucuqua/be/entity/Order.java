@@ -30,6 +30,7 @@ public class Order {
     private Double total;
     
     private String orderCode;
+    private String promotionCode;
     private String status = "PENDING";
     
     private LocalDateTime createdAt;

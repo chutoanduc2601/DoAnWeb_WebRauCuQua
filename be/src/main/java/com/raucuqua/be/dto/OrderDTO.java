@@ -15,6 +15,7 @@ public class OrderDTO {
     private Double shippingFee;
     private Double discountAmount;
     private Double total;
+    private String promotionCode;
     private List<OrderItemDTO> items;
 
     @Data

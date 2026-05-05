@@ -26,6 +26,9 @@ public class OrderService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private PromotionService promotionService;
+
     @Transactional
     public Order createOrder(OrderDTO orderDTO) {
         Order order = new Order();
@@ -39,6 +42,12 @@ public class OrderService {
         order.setShippingFee(orderDTO.getShippingFee());
         order.setDiscountAmount(orderDTO.getDiscountAmount());
         order.setTotal(orderDTO.getTotal());
+        order.setPromotionCode(orderDTO.getPromotionCode());
+
+        // Increment promotion usage if code is provided
+        if (orderDTO.getPromotionCode() != null && !orderDTO.getPromotionCode().isEmpty()) {
+            promotionService.incrementUsage(orderDTO.getPromotionCode());
+        }
 
         order.setItems(orderDTO.getItems().stream().map(itemDTO -> {
             OrderItem item = new OrderItem();

@@ -20,7 +20,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
+skills
 fe/.env
 be/.env
-
+.planning
+.claude
+CLAUDE.md
+GEMINI.md

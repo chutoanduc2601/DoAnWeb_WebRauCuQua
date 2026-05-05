@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, MapPin, Zap, Truck, Wallet, Banknote, Smartphone,
-  Tag, ChevronRight, Leaf, ShieldCheck, Clock
+  Tag, ChevronRight, Leaf, ShieldCheck, Clock, Loader2
 } from 'lucide-react';
 import SuccessModal from './SuccessModal';
 import { useAuth } from '../contexts/AuthContext';
@@ -50,8 +50,6 @@ const PAYMENT_METHODS = [
   },
 ];
 
-const VALID_CODES = { FRESH20: 0.2, GARDEN10: 0.1, UIT15: 0.15 };
-
 const pageVariants = {
   hidden: { opacity: 0, x: 60 },
   visible: { opacity: 1, x: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
@@ -64,15 +62,16 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
   const [shipping, setShipping] = useState('standard');
   const [payment, setPayment] = useState('cod');
   const [discountCode, setDiscountCode] = useState('');
-  const [appliedDiscount, setAppliedDiscount] = useState(null);
+  const [appliedPromotion, setAppliedPromotion] = useState(null);
   const [discountError, setDiscountError] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [orderResult, setOrderResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Pre-fill form from profile
-  React.useEffect(() => {
+  useEffect(() => {
     if (profile) {
       setForm({
         fullName: profile.name || '',
@@ -84,17 +83,41 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
 
   const subtotal = cartItems.reduce((a, i) => a + i.price * i.quantity, 0);
   const shippingFee = SHIPPING_OPTIONS.find((o) => o.id === shipping)?.fee ?? 0;
-  const discountAmount = appliedDiscount ? Math.round(subtotal * appliedDiscount) : 0;
+  
+  const discountAmount = useMemo(() => {
+    if (!appliedPromotion) return 0;
+    if (appliedPromotion.type === 'PERCENT') {
+      return Math.round(subtotal * (appliedPromotion.value / 100));
+    } else {
+      return appliedPromotion.value;
+    }
+  }, [appliedPromotion, subtotal]);
+
   const total = subtotal + shippingFee - discountAmount;
 
-  const handleApplyCode = () => {
+  const handleApplyCode = async () => {
     const code = discountCode.trim().toUpperCase();
-    if (VALID_CODES[code] != null) {
-      setAppliedDiscount(VALID_CODES[code]);
-      setDiscountError('');
-    } else {
-      setAppliedDiscount(null);
-      setDiscountError('Mã không hợp lệ hoặc đã hết hạn.');
+    if (!code) return;
+
+    setIsValidating(true);
+    setDiscountError('');
+    
+    try {
+      const response = await fetch(`http://localhost:8082/api/promotions/validate?code=${code}&amount=${subtotal}`);
+      const result = await response.json();
+
+      if (response.ok) {
+        setAppliedPromotion(result);
+        setDiscountError('');
+      } else {
+        setAppliedPromotion(null);
+        setDiscountError(result.message || 'Mã không hợp lệ hoặc đã hết hạn.');
+      }
+    } catch (err) {
+      setAppliedPromotion(null);
+      setDiscountError('Lỗi kết nối máy chủ.');
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -114,6 +137,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
       shippingFee,
       discountAmount,
       total,
+      promotionCode: appliedPromotion?.code || null,
       items: cartItems.map(item => ({
         id: item.id,
         name: item.name,
@@ -138,9 +162,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
       }
 
       const result = await response.json();
-      console.log('Order placed successfully:', result);
-
-      // Dispatch event to show notification immediately for this local order
+      
       const localOrderData = {
         id: result.orderCode || result.id || Math.random().toString(),
         items: cartItems,
@@ -148,7 +170,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
       };
       window.dispatchEvent(new CustomEvent('local-new-order', { detail: localOrderData }));
 
-      setOrderResult(result); // Save the full result including orderCode
+      setOrderResult(result);
       setShowSuccess(true);
       if (onSuccess) onSuccess();
     } catch (err) {
@@ -329,7 +351,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                           onChange={(e) => {
                             setDiscountCode(e.target.value);
                             setDiscountError('');
-                            if (!e.target.value) setAppliedDiscount(null);
+                            if (!e.target.value) setAppliedPromotion(null);
                           }}
                           placeholder="Nhập mã..."
                           className="w-full pl-8 pr-3 py-2 sm:py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition uppercase placeholder-normal"
@@ -337,10 +359,11 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                       </div>
                       <button
                         type="button"
+                        disabled={isValidating}
                         onClick={handleApplyCode}
-                        className="px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors whitespace-nowrap"
+                        className="flex items-center justify-center min-w-[80px] px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors whitespace-nowrap disabled:opacity-70"
                       >
-                        Áp dụng
+                        {isValidating ? <Loader2 size={16} className="animate-spin" /> : 'Áp dụng'}
                       </button>
                     </div>
                     <AnimatePresence>
@@ -354,14 +377,14 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                           {discountError}
                         </motion.p>
                       )}
-                      {appliedDiscount && (
+                      {appliedPromotion && (
                         <motion.p
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
                           className="text-emerald-600 text-xs mt-1.5 font-semibold flex items-center gap-1"
                         >
-                          ✓ Áp dụng thành công — giảm {(appliedDiscount * 100).toFixed(0)}%
+                          ✓ {appliedPromotion.name} — Giảm {appliedPromotion.type === 'PERCENT' ? `${appliedPromotion.value}%` : formatVND(appliedPromotion.value)}
                         </motion.p>
                       )}
                     </AnimatePresence>
@@ -374,9 +397,9 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                       label={`Phí vận chuyển (${shipping === 'express' ? 'Hỏa tốc' : 'Tiêu chuẩn'})`}
                       value={formatVND(shippingFee)}
                     />
-                    {appliedDiscount && (
+                    {appliedPromotion && (
                       <PriceRow
-                        label={`Giảm giá (${(appliedDiscount * 100).toFixed(0)}%)`}
+                        label={`Giảm giá (${appliedPromotion.code})`}
                         value={`- ${formatVND(discountAmount)}`}
                         highlight
                       />
@@ -402,11 +425,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                     >
                       {loading ? (
                         <>
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                          />
+                          <Loader2 size={20} className="animate-spin" />
                           Đang xử lý...
                         </>
                       ) : (
