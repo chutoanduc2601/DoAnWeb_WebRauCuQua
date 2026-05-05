@@ -34,6 +34,17 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @GetMapping
+    public ResponseEntity<List<Order>> getAllOrders() {
+        return ResponseEntity.ok(orderService.getAllOrders());
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
+        Order updated = orderService.updateOrderStatus(id, body.get("status"));
+        return ResponseEntity.ok(updated);
+    }
+
     @GetMapping(value = "/notifications", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe() {
         return notificationService.subscribe();

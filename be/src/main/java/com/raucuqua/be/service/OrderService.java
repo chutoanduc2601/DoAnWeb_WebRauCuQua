@@ -86,4 +86,15 @@ public class OrderService {
     public List<Order> getOrdersByUser(String userId) {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
+
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    @Transactional
+    public Order updateOrderStatus(Long id, String status) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
 }
