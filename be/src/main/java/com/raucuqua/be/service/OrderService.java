@@ -6,6 +6,7 @@ import com.raucuqua.be.entity.OrderItem;
 import com.raucuqua.be.repository.OrderRepository;
 import com.raucuqua.be.repository.ProfileRepository;
 import com.raucuqua.be.entity.Profile;
+import com.raucuqua.be.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,9 @@ public class OrderService {
 
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Transactional
     public Order createOrder(OrderDTO orderDTO) {
@@ -49,6 +53,9 @@ public class OrderService {
         }).collect(Collectors.toList()));
 
         Order savedOrder = orderRepository.save(order);
+
+        // Phát thông báo real-time
+        notificationService.broadcast(savedOrder);
 
         // Tự động cập nhật thông tin vào Profile nếu có userId
         if (order.getUserId() != null && !order.getUserId().isEmpty()) {
