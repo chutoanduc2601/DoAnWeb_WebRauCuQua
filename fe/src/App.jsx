@@ -15,6 +15,7 @@ import UserProfile from './components/UserProfile';
 import SalesNotification from './components/SalesNotification';
 import AdminLayout from './admin/AdminLayout';
 import ResetPassword from './components/ResetPassword';
+import PaymentResult from './components/PaymentResult';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function UserApp() {
@@ -209,6 +210,7 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
+        <Route path="/payment-result" element={<PaymentResult />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/admin/*" element={<AdminLayout />} />
         <Route path="/*" element={<UserApp />} />

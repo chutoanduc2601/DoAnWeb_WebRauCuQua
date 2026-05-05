@@ -32,6 +32,10 @@ public class Order {
     private String orderCode;
     private String status = "PENDING";
     
+    private String paymentStatus = "PENDING"; // PENDING, PAID, FAILED
+    private String paymentTransactionId; // Để lưu mã giao dịch MoMo/PayOS
+
+    
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

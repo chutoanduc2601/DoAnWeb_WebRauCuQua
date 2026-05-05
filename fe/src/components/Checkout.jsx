@@ -140,7 +140,30 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
       const result = await response.json();
       console.log('Order placed successfully:', result);
 
-      // Dispatch event to show notification immediately for this local order
+      // Nếu chọn thanh toán Online thì gọi API tạo link thanh toán
+      if (payment === 'ewallet' || payment === 'bank') {
+        const paymentMethod = payment === 'ewallet' ? 'MOMO' : 'PAYOS';
+        const paymentResponse = await fetch('http://localhost:8082/api/payment/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: result.id, paymentMethod })
+        });
+        
+        if (paymentResponse.ok) {
+          const paymentResult = await paymentResponse.json();
+          if (paymentResult.payUrl) {
+            // Chuyển hướng người dùng sang trang thanh toán
+            window.location.href = paymentResult.payUrl;
+            return;
+          } else {
+            throw new Error('Không thể khởi tạo cổng thanh toán. Thiếu URL.');
+          }
+        } else {
+          throw new Error('Không thể khởi tạo cổng thanh toán. Vui lòng thử lại.');
+        }
+      }
+
+      // Xử lý đơn COD hoặc fallback
       const localOrderData = {
         id: result.orderCode || result.id || Math.random().toString(),
         items: cartItems,
@@ -148,7 +171,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
       };
       window.dispatchEvent(new CustomEvent('local-new-order', { detail: localOrderData }));
 
-      setOrderResult(result); // Save the full result including orderCode
+      setOrderResult(result);
       setShowSuccess(true);
       if (onSuccess) onSuccess();
     } catch (err) {
