@@ -51,7 +51,7 @@ function UserApp() {
     setCartItems(prev => prev.filter(item => item.id !== productId));
   };
 
-  const totalCartItemsCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const totalCartItemsCount = cartItems.length;
 
   const handleProductClick = (product) => {
     setSelectedProduct(product);
