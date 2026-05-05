@@ -24,7 +24,7 @@ public class ProductController {
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice) {
-        
+
         return productRepository.findByFilters(name, categoryId, minPrice, maxPrice);
     }
 

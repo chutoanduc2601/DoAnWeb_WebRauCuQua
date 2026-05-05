@@ -139,6 +139,15 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
 
       const result = await response.json();
       console.log('Order placed successfully:', result);
+
+      // Dispatch event to show notification immediately for this local order
+      const localOrderData = {
+        id: result.orderCode || result.id || Math.random().toString(),
+        items: cartItems,
+        isMine: true
+      };
+      window.dispatchEvent(new CustomEvent('local-new-order', { detail: localOrderData }));
+
       setOrderResult(result); // Save the full result including orderCode
       setShowSuccess(true);
       if (onSuccess) onSuccess();
