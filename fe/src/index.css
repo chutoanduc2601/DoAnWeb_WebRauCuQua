@@ -14,6 +14,14 @@
   --color-brand-700: #047857;
   --color-brand-800: #065f46;
   --color-brand-900: #064e3b;
+  
+  /* New Promotion Design Tokens */
+  --color-forest-green: #064e3b;
+  --color-lime-green: #bef264;
+  --color-coral-sale: #ff7f50;
+  --color-turmeric-yellow: #f59e0b;
+  --color-burnt-orange: #ea580c;
+  
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
@@ -49,6 +57,28 @@
   .glass-dark {
     @apply bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 shadow-sm;
   }
+
+  /* Branding Colors */
+  :root {
+    --color-forest-green: #064e3b;
+    --color-lime-green: #bef264;
+    --color-coral-sale: #ff7f50;
+    --color-burnt-orange: #d9480f;
+    --color-turmeric-yellow: #f59e0b;
+  }
+
+  .text-brand-gradient {
+    background: linear-gradient(to right, var(--color-forest-green), var(--color-lime-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .bg-forest-green { background-color: var(--color-forest-green); }
+  .bg-lime-green { background-color: var(--color-lime-green); }
+  .bg-coral-sale { background-color: var(--color-coral-sale); }
+  .text-forest-green { color: var(--color-forest-green); }
+  .text-lime-green { color: var(--color-lime-green); }
+  .text-coral-sale { color: var(--color-coral-sale); }
 }
 
 /* Admin dark mode support */

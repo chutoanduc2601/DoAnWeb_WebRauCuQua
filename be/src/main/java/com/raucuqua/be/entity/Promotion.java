@@ -38,6 +38,10 @@ public class Promotion {
 
     private String status = "ACTIVE"; // ACTIVE, INACTIVE
 
+    private String imageUrl; // URL cho poster khuyến mãi
+
+    private String category = "DISCOUNT"; // SHIP, DISCOUNT, COMBO
+
     private LocalDateTime createdAt;
 
     @PrePersist

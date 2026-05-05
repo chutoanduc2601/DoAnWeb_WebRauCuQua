@@ -30,7 +30,9 @@ export default function Promotions() {
     startDate: '',
     endDate: '',
     maxUsage: '',
-    status: 'ACTIVE'
+    status: 'ACTIVE',
+    imageUrl: '',
+    category: 'DISCOUNT'
   });
 
   const fetchPromotions = async () => {
@@ -63,7 +65,9 @@ export default function Promotions() {
         startDate: editPromo.startDate ? editPromo.startDate.split('T')[0] : '',
         endDate: editPromo.endDate ? editPromo.endDate.split('T')[0] : '',
         maxUsage: editPromo.maxUsage || '',
-        status: editPromo.status || 'ACTIVE'
+        status: editPromo.status || 'ACTIVE',
+        imageUrl: editPromo.imageUrl || '',
+        category: editPromo.category || 'DISCOUNT'
       });
     } else {
       setFormData({
@@ -75,7 +79,9 @@ export default function Promotions() {
         startDate: '',
         endDate: '',
         maxUsage: '',
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        imageUrl: '',
+        category: 'DISCOUNT'
       });
     }
   }, [editPromo, modalOpen]);
@@ -140,6 +146,11 @@ export default function Promotions() {
     { key: 'startDate', label: 'Bắt đầu', render: (val) => val ? new Date(val).toLocaleDateString('vi-VN') : '—' },
     { key: 'endDate', label: 'Kết thúc', render: (val) => val ? new Date(val).toLocaleDateString('vi-VN') : '—' },
     { key: 'usageCount', label: 'Dùng/Tối đa', render: (val, row) => <span className="font-medium">{val || 0}/{row.maxUsage || '∞'}</span> },
+    { key: 'category', label: 'Phân loại', render: (val) => {
+        const labels = { 'SHIP': 'Voucher Ship', 'DISCOUNT': 'Giảm giá', 'COMBO': 'Combo' };
+        return <span className="text-xs font-bold px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{labels[val] || val}</span>
+      } 
+    },
     { key: 'status', label: 'Trạng thái', render: (val) => <StatusBadge status={val?.toLowerCase()} /> },
   ];
 
@@ -274,6 +285,27 @@ export default function Promotions() {
               onChange={(e) => setFormData({...formData, endDate: e.target.value})}
               className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer" 
             />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">URL Ảnh Poster (Hiển thị làm nền)</label>
+            <input 
+              value={formData.imageUrl} 
+              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" 
+              placeholder="Ví dụ: https://images.unsplash.com/photo-1542838132-92c53300491e"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Phân loại hiển thị</label>
+            <select 
+              value={formData.category} 
+              onChange={(e) => setFormData({...formData, category: e.target.value})}
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+            >
+              <option value="SHIP">Voucher Ship (Vận chuyển)</option>
+              <option value="DISCOUNT">Voucher Giảm giá (Phần trăm/Cố định)</option>
+              <option value="COMBO">Voucher Combo (Mua kèm/Số lượng)</option>
+            </select>
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Trạng thái</label>
