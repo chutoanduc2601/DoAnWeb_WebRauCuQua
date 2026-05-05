@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,6 +17,11 @@ public class ProfileController {
 
     @Autowired
     private ProfileRepository profileRepository;
+
+    @GetMapping
+    public ResponseEntity<List<Profile>> getAllProfiles() {
+        return ResponseEntity.ok(profileRepository.findAll());
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Profile> getProfile(@PathVariable UUID id) {
