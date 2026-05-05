@@ -180,7 +180,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
             <div className="h-4 w-px bg-slate-200 hidden sm:block" />
             <div className="hidden sm:flex items-center gap-2 text-slate-800 font-bold text-lg">
               <Leaf size={20} className="text-emerald-500" />
-              FreshGarden
+              Farmily
             </div>
             <div className="ml-auto flex items-center gap-1.5 text-emerald-600 text-[10px] sm:text-xs font-semibold bg-emerald-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-emerald-200">
               <ShieldCheck size={12} className="sm:w-[14px] sm:h-[14px]" /> <span className="hidden sm:inline">Thanh toán</span> bảo mật
@@ -457,7 +457,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
         {/* Footer */}
         <footer className="border-t border-slate-200 mt-8 sm:mt-12 py-4 sm:py-6">
           <div className="container mx-auto px-3 sm:px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 text-xs sm:text-sm text-slate-400">
-            <p>© {new Date().getFullYear()} FreshGarden. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Farmily. All rights reserved.</p>
             <div className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-800/5 rounded-full border border-slate-200 font-medium font-mono text-emerald-600">
               Built by Duc Bao - Nong Lam University
             </div>

@@ -96,11 +96,11 @@ export const promotions = [
 
 // ===================== TÀI KHOẢN =====================
 export const accounts = [
-  { id: 1, name: 'Admin Chính', email: 'admin@freshgarden.vn', role: 'admin', status: 'active', createdAt: '2025-01-01', lastLogin: '2026-04-19' },
-  { id: 2, name: 'Nguyễn Quản Lý', email: 'manager@freshgarden.vn', role: 'admin', status: 'active', createdAt: '2025-03-15', lastLogin: '2026-04-18' },
-  { id: 3, name: 'Trần Nhân Viên', email: 'staff1@freshgarden.vn', role: 'staff', status: 'active', createdAt: '2025-06-20', lastLogin: '2026-04-19' },
-  { id: 4, name: 'Lê Kho Hàng', email: 'warehouse@freshgarden.vn', role: 'staff', status: 'active', createdAt: '2025-08-10', lastLogin: '2026-04-17' },
-  { id: 5, name: 'Phạm Cũ', email: 'old@freshgarden.vn', role: 'staff', status: 'inactive', createdAt: '2025-02-28', lastLogin: '2026-01-15' },
+  { id: 1, name: 'Admin Chính', email: 'admin@farmily.vn', role: 'admin', status: 'active', createdAt: '2025-01-01', lastLogin: '2026-04-19' },
+  { id: 2, name: 'Nguyễn Quản Lý', email: 'manager@farmily.vn', role: 'admin', status: 'active', createdAt: '2025-03-15', lastLogin: '2026-04-18' },
+  { id: 3, name: 'Trần Nhân Viên', email: 'staff1@farmily.vn', role: 'staff', status: 'active', createdAt: '2025-06-20', lastLogin: '2026-04-19' },
+  { id: 4, name: 'Lê Kho Hàng', email: 'warehouse@farmily.vn', role: 'staff', status: 'active', createdAt: '2025-08-10', lastLogin: '2026-04-17' },
+  { id: 5, name: 'Phạm Cũ', email: 'old@farmily.vn', role: 'staff', status: 'inactive', createdAt: '2025-02-28', lastLogin: '2026-01-15' },
 ];
 
 // ===================== DỮ LIỆU BIỂU ĐỒ =====================
