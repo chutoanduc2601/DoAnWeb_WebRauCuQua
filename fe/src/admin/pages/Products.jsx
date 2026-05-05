@@ -4,7 +4,7 @@ import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 import AdminModal from '../components/AdminModal';
 import StatusBadge from '../components/StatusBadge';
-import { categories, formatCurrency } from '../data/adminMockData';
+import { formatCurrency } from '../data/adminMockData';
 
 const ITEMS_PER_PAGE = 10;
 const API_URL = 'http://localhost:8082/api/products';
@@ -18,6 +18,7 @@ export default function Products() {
   const [editProduct, setEditProduct] = useState(null);
 
   // Form states
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     name: '', categoryId: '', price: '', unit: '', stock: '', status: 'active'
   });
@@ -26,22 +27,32 @@ export default function Products() {
     try {
       const res = await fetch(API_URL);
       const data = await res.json();
-      setDbProducts(data);
+      setDbProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch products:', error);
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('http://localhost:8082/api/categories');
+      const data = await res.json();
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
     if (editProduct) {
-      const cat = categories.find(c => c.name === editProduct.category);
       setFormData({
         name: editProduct.name || '',
-        categoryId: cat ? cat.id : '',
+        categoryId: editProduct.category?.id || '',
         price: editProduct.price || '',
         unit: editProduct.unit || '',
         stock: editProduct.stock || 0,
@@ -53,12 +64,11 @@ export default function Products() {
   }, [editProduct]);
 
   const handleSave = async () => {
-    const categoryName = categories.find(c => Number(c.id) === Number(formData.categoryId))?.name || '';
     const productPayload = {
       name: formData.name,
       price: Number(formData.price),
       unit: formData.unit,
-      category: categoryName,
+      category: { id: Number(formData.categoryId) },
       stock: Number(formData.stock),
       status: formData.status,
       sold: editProduct ? editProduct.sold : 0
@@ -97,15 +107,14 @@ export default function Products() {
 
   const filtered = useMemo(() => {
     return dbProducts.filter(p => {
-      const matchSearch = p.name?.toLowerCase().includes(search.toLowerCase());
-      const cat = categories.find(c => c.name === p.category);
-      const categoryId = cat ? cat.id : -1;
+      const matchSearch = search === '' || (p.name && p.name.toLowerCase().includes(search.toLowerCase()));
+      const categoryId = p.category?.id || -1;
       const matchCat = filterCat === 'all' || categoryId === Number(filterCat);
       return matchSearch && matchCat;
     });
-  }, [search, filterCat, dbProducts]);
+  }, [search, filterCat, dbProducts, categories]);
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const columns = [
@@ -118,7 +127,7 @@ export default function Products() {
             </div>
             <div>
               <p className="font-medium text-slate-900 dark:text-white text-sm">{val}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{row.category}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{row.category?.name || 'N/A'}</p>
             </div>
           </div>
       ),

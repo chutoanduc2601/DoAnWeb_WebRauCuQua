@@ -31,7 +31,7 @@ export default function Orders() {
     try {
       const res = await fetch(API_URL);
       const data = await res.json();
-      setAllOrders(data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      setAllOrders(Array.isArray(data) ? data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : []);
     } catch (error) {
       console.error('Failed to fetch orders', error);
     } finally {
