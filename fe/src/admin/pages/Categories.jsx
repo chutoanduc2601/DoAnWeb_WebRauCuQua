@@ -1,12 +1,82 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, FolderTree } from 'lucide-react';
 import AdminModal from '../components/AdminModal';
-import { categories } from '../data/adminMockData';
+
+const API_URL = 'http://localhost:8082/api/categories';
 
 export default function Categories() {
+  const [categories, setCategories] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editCat, setEditCat] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [formData, setFormData] = useState({ name: '', description: '' });
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Lỗi khi tải danh mục:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (editCat) {
+      setFormData({ name: editCat.name || '', description: editCat.description || '' });
+    } else {
+      setFormData({ name: '', description: '' });
+    }
+  }, [editCat]);
+
+  const handleSave = async () => {
+    if (!formData.name.trim()) {
+      alert('Vui lòng nhập tên danh mục!');
+      return;
+    }
+    
+    try {
+      let res;
+      if (editCat) {
+        res = await fetch(`${API_URL}/${editCat.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+      } else {
+        res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+      }
+
+      if (!res.ok) throw new Error('Cannot save category');
+
+      setModalOpen(false);
+      fetchCategories();
+    } catch (error) {
+      alert('Không thể lưu danh mục. Vui lòng kiểm tra lại thông tin.');
+      console.error('Lỗi lưu danh mục:', error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteConfirm) return;
+    try {
+      const res = await fetch(`${API_URL}/${deleteConfirm.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Cannot delete category');
+      setDeleteConfirm(null);
+      fetchCategories();
+    } catch (error) {
+      alert('Không thể xóa danh mục này (có thể đang chứa sản phẩm).');
+      console.error('Lỗi xóa danh mục:', error);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -35,7 +105,6 @@ export default function Categories() {
             </div>
             <h3 className="font-semibold text-slate-900 dark:text-white">{cat.name}</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{cat.description}</p>
-            <p className="text-xs text-brand-600 dark:text-brand-400 font-medium mt-3">{cat.productCount} sản phẩm</p>
           </div>
         ))}
       </div>
@@ -45,18 +114,18 @@ export default function Categories() {
         footer={
           <>
             <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer">Hủy</button>
-            <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium cursor-pointer">{editCat ? 'Cập nhật' : 'Thêm mới'}</button>
+            <button onClick={handleSave} className="px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium cursor-pointer">{editCat ? 'Cập nhật' : 'Thêm mới'}</button>
           </>
         }
       >
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tên danh mục</label>
-            <input defaultValue={editCat?.name || ''} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
+            <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mô tả</label>
-            <textarea defaultValue={editCat?.description || ''} rows={3} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500 resize-none" />
+            <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500 resize-none" />
           </div>
         </div>
       </AdminModal>
@@ -66,7 +135,7 @@ export default function Categories() {
         footer={
           <>
             <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer">Hủy</button>
-            <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium cursor-pointer">Xóa</button>
+            <button onClick={handleDelete} className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium cursor-pointer">Xóa</button>
           </>
         }
       >

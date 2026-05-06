@@ -1,51 +1,75 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Eye, User } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, Eye, User, RefreshCw } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 import AdminModal from '../components/AdminModal';
-import { customers as allCustomers, formatCurrency } from '../data/adminMockData';
+import { formatCurrency } from '../data/adminMockData';
 
 const ITEMS_PER_PAGE = 10;
+const API_URL = 'http://localhost:8082/api/profiles';
 
 export default function Customers() {
+  const [allCustomers, setAllCustomers] = useState([]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchProfiles = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      setAllCustomers(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to fetch profiles', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
 
   const filtered = useMemo(() => {
     return allCustomers.filter(c =>
-      c.name.toLowerCase().includes(search.toLowerCase()) || c.email.toLowerCase().includes(search.toLowerCase())
+      (c.name && c.name.toLowerCase().includes(search.toLowerCase())) || 
+      (c.email && c.email.toLowerCase().includes(search.toLowerCase()))
     );
-  }, [search]);
+  }, [search, allCustomers]);
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const columns = [
     {
       key: 'name', label: 'Khách hàng',
-      render: (val) => (
+      render: (val, row) => (
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center shrink-0">
             <User className="w-4 h-4 text-brand-600 dark:text-brand-400" />
           </div>
-          <span className="font-medium text-slate-900 dark:text-white">{val}</span>
+          <span className="font-medium text-slate-900 dark:text-white">{val || row.email}</span>
         </div>
       ),
     },
     { key: 'email', label: 'Email' },
     { key: 'phone', label: 'SĐT' },
-    { key: 'orders', label: 'Số đơn', render: (val) => <span className="font-medium">{val}</span> },
-    { key: 'totalSpent', label: 'Tổng chi tiêu', render: (val) => <span className="font-medium">{formatCurrency(val)}</span> },
-    { key: 'joinDate', label: 'Ngày tham gia' },
+    { key: 'role', label: 'Vai trò', render: (val) => <span className="font-medium">{val === 'admin' ? 'Admin' : 'Khách hàng'}</span> }
   ];
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 gap-2 w-full sm:w-72">
-        <Search className="w-4 h-4 text-slate-400" />
-        <input type="text" placeholder="Tìm khách hàng..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
-          className="bg-transparent text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 outline-none w-full" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 gap-2 w-full sm:w-72">
+          <Search className="w-4 h-4 text-slate-400" />
+          <input type="text" placeholder="Tìm khách hàng..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
+            className="bg-transparent text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 outline-none w-full" />
+        </div>
+        <button onClick={fetchProfiles} className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg cursor-pointer">
+          <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+        </button>
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
@@ -69,26 +93,22 @@ export default function Customers() {
                 <User className="w-8 h-8 text-brand-600 dark:text-brand-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{selectedCustomer.name}</h3>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{selectedCustomer.name || 'Chưa cập nhật'}</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">{selectedCustomer.email}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3">
                 <p className="text-xs text-slate-500 dark:text-slate-400">SĐT</p>
-                <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{selectedCustomer.phone}</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{selectedCustomer.phone || 'N/A'}</p>
               </div>
               <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3">
-                <p className="text-xs text-slate-500 dark:text-slate-400">Ngày tham gia</p>
-                <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{selectedCustomer.joinDate}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Vai trò</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{selectedCustomer.role === 'admin' ? 'Admin' : 'User'}</p>
               </div>
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3">
-                <p className="text-xs text-slate-500 dark:text-slate-400">Tổng đơn hàng</p>
-                <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{selectedCustomer.orders}</p>
-              </div>
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3">
-                <p className="text-xs text-slate-500 dark:text-slate-400">Tổng chi tiêu</p>
-                <p className="text-sm font-medium text-brand-600 dark:text-brand-400 mt-1">{formatCurrency(selectedCustomer.totalSpent)}</p>
+              <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3 col-span-2">
+                <p className="text-xs text-slate-500 dark:text-slate-400">Địa chỉ</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{selectedCustomer.address || 'N/A'}</p>
               </div>
             </div>
           </div>

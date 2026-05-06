@@ -8,6 +8,9 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE " +
@@ -20,4 +23,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("categoryId") Long categoryId,
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice);
+
+    @Query("SELECT p FROM Product p WHERE " +
+           "(cast(:name as string) IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', cast(:name as string), '%'))) AND " +
+           "(:categoryId IS NULL OR p.category.id = :categoryId)")
+    Page<Product> findByFiltersPaged(
+            @Param("name") String name,
+            @Param("categoryId") Long categoryId,
+            Pageable pageable);
 }
