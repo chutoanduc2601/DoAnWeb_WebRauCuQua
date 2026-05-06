@@ -22,4 +22,20 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             @Param("search") String search,
             @Param("status") String status,
             Pageable pageable);
+
+    @Query("SELECT SUM(o.total) FROM Order o WHERE o.status = :status")
+    Double sumTotalByStatus(@Param("status") String status);
+
+    @Query("SELECT SUM(o.total) FROM Order o")
+    Double sumTotalAll();
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.status = :status")
+    Long countByStatus(@Param("status") String status);
+
+    @Query(value = "SELECT CAST(created_at AS DATE) as date, SUM(total) as revenue " +
+                   "FROM orders " +
+                   "WHERE status = 'DELIVERED' " +
+                   "GROUP BY CAST(created_at AS DATE) " +
+                   "ORDER BY date DESC LIMIT 7", nativeQuery = true)
+    List<Object[]> getRevenueLast7Days();
 }
