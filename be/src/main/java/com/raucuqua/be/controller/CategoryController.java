@@ -18,4 +18,33 @@ public class CategoryController {
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
+
+    @PostMapping
+    public Category createCategory(@RequestBody Category category) {
+        if (category.getSlug() == null || category.getSlug().isEmpty()) {
+            category.setSlug(category.getName().toLowerCase().replace(" ", "-"));
+        }
+        return categoryRepository.save(category);
+    }
+
+    @PutMapping("/{id}")
+    public Category updateCategory(@PathVariable Long id, @RequestBody Category categoryDetails) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        
+        category.setName(categoryDetails.getName());
+        category.setDescription(categoryDetails.getDescription());
+        if (categoryDetails.getSlug() != null && !categoryDetails.getSlug().isEmpty()) {
+            category.setSlug(categoryDetails.getSlug());
+        }
+        if (categoryDetails.getIcon() != null) {
+            category.setIcon(categoryDetails.getIcon());
+        }
+        return categoryRepository.save(category);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteCategory(@PathVariable Long id) {
+        categoryRepository.deleteById(id);
+    }
 }

@@ -1,16 +1,18 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Search, Edit, Trash2, Package, Image as ImageIcon } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 import AdminModal from '../components/AdminModal';
 import StatusBadge from '../components/StatusBadge';
-import { categories, formatCurrency } from '../data/adminMockData';
+import { formatCurrency } from '../data/adminMockData';
 
 const ITEMS_PER_PAGE = 10;
 const API_URL = 'http://localhost:8082/api/products';
 
 export default function Products() {
   const [dbProducts, setDbProducts] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('all');
   const [page, setPage] = useState(1);
@@ -18,30 +20,61 @@ export default function Products() {
   const [editProduct, setEditProduct] = useState(null);
 
   // Form states
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     name: '', categoryId: '', price: '', unit: '', stock: '', status: 'active'
   });
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(API_URL);
+      const catParam = filterCat === 'all' ? '' : `&categoryId=${filterCat}`;
+      const searchParam = search ? `&name=${encodeURIComponent(search)}` : '';
+      const res = await fetch(`${API_URL}/paged?page=${page - 1}&size=${ITEMS_PER_PAGE}${searchParam}${catParam}`);
       const data = await res.json();
-      setDbProducts(data);
+      
+      if (data && data.content) {
+        setDbProducts(data.content);
+        setTotalPages(data.totalPages || 1);
+        setTotalItems(data.totalElements || 0);
+      } else {
+        setDbProducts(Array.isArray(data) ? data : []);
+        setTotalPages(1);
+        setTotalItems(0);
+      }
     } catch (error) {
       console.error('Failed to fetch products:', error);
+      setDbProducts([]);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('http://localhost:8082/api/categories');
+      const data = await res.json();
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
+    // Fetch products when page, search, or filter changes
+    // Using a simple timeout for debouncing search
+    const timer = setTimeout(() => {
+      fetchProducts();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [page, search, filterCat]);
+
+  useEffect(() => {
     if (editProduct) {
-      const cat = categories.find(c => c.name === editProduct.category);
       setFormData({
         name: editProduct.name || '',
-        categoryId: cat ? cat.id : '',
+        categoryId: editProduct.category?.id || '',
         price: editProduct.price || '',
         unit: editProduct.unit || '',
         stock: editProduct.stock || 0,
@@ -53,34 +86,46 @@ export default function Products() {
   }, [editProduct]);
 
   const handleSave = async () => {
-    const categoryName = categories.find(c => Number(c.id) === Number(formData.categoryId))?.name || '';
+    if (!formData.name.trim() || !formData.categoryId || !formData.price) {
+      alert('Vui lòng nhập tên, giá và chọn danh mục sản phẩm!');
+      return;
+    }
+
     const productPayload = {
       name: formData.name,
       price: Number(formData.price),
       unit: formData.unit,
-      category: categoryName,
+      category: { id: Number(formData.categoryId) },
       stock: Number(formData.stock),
       status: formData.status,
-      sold: editProduct ? editProduct.sold : 0
+      sold: editProduct ? editProduct.sold : 0,
+      imageUrl: editProduct ? editProduct.imageUrl : null,
+      tags: editProduct ? editProduct.tags : null,
+      badge: editProduct ? editProduct.badge : null
     };
 
     try {
+      let res;
       if (editProduct) {
-        await fetch(`${API_URL}/${editProduct.id}`, {
+        res = await fetch(`${API_URL}/${editProduct.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productPayload)
         });
       } else {
-        await fetch(API_URL, {
+        res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productPayload)
         });
       }
+      
+      if (!res.ok) throw new Error('Cannot save product');
+      
       setModalOpen(false);
       fetchProducts();
     } catch (error) {
+      alert('Không thể lưu sản phẩm. Vui lòng kiểm tra lại thông tin.');
       console.error('Failed to save product:', error);
     }
   };
@@ -88,37 +133,30 @@ export default function Products() {
   const handleDelete = async (id) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
     try {
-      await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Cannot delete product');
       fetchProducts();
     } catch (error) {
+      alert('Không thể xóa sản phẩm này (có thể đang có trong đơn hàng).');
       console.error('Failed to delete product:', error);
     }
   };
-
-  const filtered = useMemo(() => {
-    return dbProducts.filter(p => {
-      const matchSearch = p.name?.toLowerCase().includes(search.toLowerCase());
-      const cat = categories.find(c => c.name === p.category);
-      const categoryId = cat ? cat.id : -1;
-      const matchCat = filterCat === 'all' || categoryId === Number(filterCat);
-      return matchSearch && matchCat;
-    });
-  }, [search, filterCat, dbProducts]);
-
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const columns = [
     {
       key: 'name', label: 'Sản phẩm',
       render: (val, row) => (
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0">
-              <Package className="w-5 h-5 text-brand-500" />
+            <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-600">
+              {row.imageUrl ? (
+                <img src={row.imageUrl} alt={val} className="w-full h-full object-cover" />
+              ) : (
+                <Package className="w-5 h-5 text-slate-400" />
+              )}
             </div>
             <div>
-              <p className="font-medium text-slate-900 dark:text-white text-sm">{val}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{row.category}</p>
+              <p className="font-medium text-slate-900 dark:text-white text-sm line-clamp-1">{val}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{row.category?.name || 'N/A'}</p>
             </div>
           </div>
       ),
@@ -172,7 +210,7 @@ export default function Products() {
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
           <DataTable
               columns={columns}
-              data={paginated}
+              data={dbProducts}
               renderActions={(row) => (
                   <div className="flex items-center justify-end gap-1">
                     <button onClick={() => { setEditProduct(row); setModalOpen(true); }} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 cursor-pointer">
@@ -185,7 +223,7 @@ export default function Products() {
               )}
           />
           <div className="px-4 pb-4">
-            <Pagination currentPage={page} totalPages={totalPages} totalItems={filtered.length} itemsPerPage={ITEMS_PER_PAGE} onPageChange={setPage} />
+            <Pagination currentPage={page} totalPages={totalPages} totalItems={totalItems} itemsPerPage={ITEMS_PER_PAGE} onPageChange={setPage} />
           </div>
         </div>
 
@@ -198,7 +236,7 @@ export default function Products() {
                       </>
                     }
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tên sản phẩm</label>
               <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
@@ -210,6 +248,31 @@ export default function Products() {
                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ảnh sản phẩm (URL)</label>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <input 
+                  value={formData.imageUrl} 
+                  onChange={e => setFormData({ ...formData, imageUrl: e.target.value })} 
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" 
+                />
+                <p className="text-[10px] text-slate-400 mt-1 italic">* Dán link ảnh từ Supabase hoặc các nguồn ảnh khác.</p>
+              </div>
+              <div className="w-16 h-16 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                {formData.imageUrl ? (
+                  <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => e.target.src='https://via.placeholder.com/150?text=Error'} />
+                ) : (
+                  <ImageIcon className="w-6 h-6 text-slate-300" />
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Giá (VNĐ)</label>
               <input type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />

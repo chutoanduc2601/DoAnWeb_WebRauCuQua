@@ -86,4 +86,19 @@ public class OrderService {
     public List<Order> getOrdersByUser(String userId) {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
+
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    public org.springframework.data.domain.Page<Order> getOrdersPaged(String search, String status, org.springframework.data.domain.Pageable pageable) {
+        return orderRepository.findByFiltersPaged(search, status, pageable);
+    }
+
+    @Transactional
+    public Order updateOrderStatus(Long id, String status) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
 }
