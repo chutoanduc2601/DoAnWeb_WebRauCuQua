@@ -2,6 +2,7 @@ package com.raucuqua.be.controller;
 
 import com.raucuqua.be.dto.OrderDTO;
 import com.raucuqua.be.entity.Order;
+import com.raucuqua.be.entity.OrderTracking;
 import com.raucuqua.be.service.NotificationService;
 import com.raucuqua.be.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,13 @@ public class OrderController {
 
     @PutMapping("/{id}/status")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
-        Order updated = orderService.updateOrderStatus(id, body.get("status"));
+        Order updated = orderService.updateOrderStatus(id, body.get("status"), body.get("description"));
         return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/{id}/tracking")
+    public ResponseEntity<List<OrderTracking>> getOrderTracking(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.getOrderTracking(id));
     }
 
     @GetMapping(value = "/notifications", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
