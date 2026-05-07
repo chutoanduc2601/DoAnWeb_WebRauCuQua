@@ -4,6 +4,8 @@ const statusConfig = {
   pending: { label: 'Chờ xác nhận', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', dot: 'bg-amber-500' },
   shipping: { label: 'Đang giao', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', dot: 'bg-blue-500' },
   delivered: { label: 'Đã giao', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', dot: 'bg-green-500' },
+  confirmed: { label: 'Đã xác nhận', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', dot: 'bg-emerald-500' },
+  processing: { label: 'Đang chuẩn bị', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', dot: 'bg-indigo-500' },
   cancelled: { label: 'Đã hủy', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', dot: 'bg-red-500' },
   active: { label: 'Hoạt động', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', dot: 'bg-green-500' },
   inactive: { label: 'Ngưng', color: 'bg-slate-100 text-slate-600 dark:bg-slate-700/50 dark:text-slate-400', dot: 'bg-slate-400' },

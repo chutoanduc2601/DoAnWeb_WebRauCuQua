@@ -3,7 +3,9 @@ package com.raucuqua.be.service;
 import com.raucuqua.be.dto.OrderDTO;
 import com.raucuqua.be.entity.Order;
 import com.raucuqua.be.entity.OrderItem;
+import com.raucuqua.be.entity.OrderTracking;
 import com.raucuqua.be.repository.OrderRepository;
+import com.raucuqua.be.repository.OrderTrackingRepository;
 import com.raucuqua.be.repository.ProfileRepository;
 import com.raucuqua.be.entity.Profile;
 import com.raucuqua.be.service.NotificationService;
@@ -22,6 +24,9 @@ public class OrderService {
 
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    private OrderTrackingRepository orderTrackingRepository;
 
     @Autowired
     private NotificationService notificationService;
@@ -63,6 +68,14 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
+        // Khởi tạo tracking đầu tiên
+        OrderTracking tracking = new OrderTracking();
+        tracking.setOrder(savedOrder);
+        tracking.setStatus(savedOrder.getStatus());
+        tracking.setCreatedAt(java.time.LocalDateTime.now());
+        tracking.setDescription("Đơn hàng đã được đặt thành công");
+        orderTrackingRepository.save(tracking);
+
         // Phát thông báo real-time
         notificationService.broadcast(savedOrder);
 
@@ -97,8 +110,37 @@ public class OrderService {
 
     @Transactional
     public Order updateOrderStatus(Long id, String status) {
+        return updateOrderStatus(id, status, null);
+    }
+
+    @Transactional
+    public Order updateOrderStatus(Long id, String status, String description) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
         order.setStatus(status);
+        
+        OrderTracking tracking = new OrderTracking();
+        tracking.setOrder(order);
+        tracking.setStatus(status);
+        tracking.setDescription(description != null ? description : getDefaultDescription(status));
+        tracking.setCreatedAt(java.time.LocalDateTime.now());
+        orderTrackingRepository.save(tracking);
+        
         return orderRepository.save(order);
+    }
+
+    public List<OrderTracking> getOrderTracking(Long orderId) {
+        return orderTrackingRepository.findByOrder_IdOrderByCreatedAtDesc(orderId);
+    }
+
+    private String getDefaultDescription(String status) {
+        switch (status.toUpperCase()) {
+            case "PENDING": return "Đang chờ xác nhận";
+            case "CONFIRMED": return "Đơn hàng đã được xác nhận";
+            case "PROCESSING": return "Đang chuẩn bị hàng";
+            case "SHIPPING": return "Đơn hàng đang trên đường giao đến bạn";
+            case "DELIVERED": return "Giao hàng thành công";
+            case "CANCELLED": return "Đơn hàng đã bị hủy";
+            default: return "Cập nhật trạng thái mới: " + status;
+        }
     }
 }

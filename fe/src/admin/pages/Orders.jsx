@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, RefreshCw } from 'lucide-react';
+import { Search, Eye, RefreshCw, CheckCircle } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 import AdminModal from '../components/AdminModal';
@@ -12,6 +12,8 @@ const API_URL = 'http://localhost:8082/api/orders';
 const tabs = [
   { key: 'all', label: 'Tất cả' },
   { key: 'pending', label: 'Chờ xác nhận' },
+  { key: 'confirmed', label: 'Đã xác nhận' },
+  { key: 'processing', label: 'Đang chuẩn bị' },
   { key: 'shipping', label: 'Đang giao' },
   { key: 'delivered', label: 'Đã giao' },
   { key: 'cancelled', label: 'Đã hủy' },
@@ -27,6 +29,8 @@ export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [updateStatus, setUpdateStatus] = useState('');
+  const [updateDescription, setUpdateDescription] = useState('');
+  const [trackingHistory, setTrackingHistory] = useState([]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -60,13 +64,34 @@ export default function Orders() {
     return () => clearTimeout(timer);
   }, [page, search, activeTab]);
 
-  const handleUpdateStatus = async () => {
-    if (!selectedOrder || !updateStatus) return;
+  const fetchTracking = async (orderId) => {
+    try {
+      const res = await fetch(`${API_URL}/${orderId}/tracking`);
+      const data = await res.json();
+      setTrackingHistory(data);
+    } catch (error) {
+      console.error('Failed to fetch tracking', error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedOrder) {
+      fetchTracking(selectedOrder.id);
+      setUpdateDescription('');
+    }
+  }, [selectedOrder]);
+
+  const handleUpdateStatus = async (statusOverride = null) => {
+    const statusToUse = statusOverride || updateStatus;
+    if (!selectedOrder || !statusToUse) return;
     try {
       const res = await fetch(`${API_URL}/${selectedOrder.id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: updateStatus })
+        body: JSON.stringify({ 
+          status: statusToUse,
+          description: updateDescription
+        })
       });
       
       if (!res.ok) throw new Error('Cannot update order status');
@@ -120,9 +145,33 @@ export default function Orders() {
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
         <DataTable columns={columns} data={dbOrders}
           renderActions={(row) => (
-            <button onClick={() => { setSelectedOrder(row); setUpdateStatus(row.status || 'pending'); }} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 cursor-pointer">
-              <Eye className="w-4 h-4" />
-            </button>
+            <div className="flex gap-1">
+              <button onClick={() => { setSelectedOrder(row); setUpdateStatus(row.status || 'pending'); }} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 cursor-pointer" title="Xem chi tiết">
+                <Eye className="w-4 h-4" />
+              </button>
+              {row.status === 'PENDING' && (
+                <button 
+                  onClick={async () => {
+                    setSelectedOrder(row); // Set for context if needed, though handleUpdateStatus below needs a slight change if called directly
+                    // To avoid complications, let's just make a direct quick confirm call
+                    if (window.confirm(`Xác nhận đơn hàng #${row.orderCode}?`)) {
+                      try {
+                        const res = await fetch(`${API_URL}/${row.id}/status`, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ status: 'CONFIRMED', description: 'Đơn hàng đã được xác nhận nhanh' })
+                        });
+                        if (res.ok) fetchOrders();
+                      } catch (err) { console.error(err); }
+                    }
+                  }} 
+                  className="p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/30 text-emerald-600 cursor-pointer" 
+                  title="Xác nhận nhanh"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           )}
         />
         <div className="px-4 pb-4">
@@ -134,7 +183,15 @@ export default function Orders() {
         footer={
           <>
             <button onClick={() => setSelectedOrder(null)} className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer">Đóng</button>
-            <button onClick={handleUpdateStatus} className="px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium cursor-pointer">Lưu trạng thái</button>
+            {selectedOrder?.status === 'PENDING' && (
+              <button 
+                onClick={() => handleUpdateStatus('CONFIRMED')} 
+                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium cursor-pointer"
+              >
+                Xác nhận đơn hàng
+              </button>
+            )}
+            <button onClick={() => handleUpdateStatus()} className="px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium cursor-pointer">Lưu trạng thái</button>
           </>
         }
       >
@@ -145,16 +202,46 @@ export default function Orders() {
               <div><span className="text-slate-500 dark:text-slate-400">SĐT:</span> <span className="font-medium text-slate-900 dark:text-white ml-1">{selectedOrder.phone}</span></div>
               <div><span className="text-slate-500 dark:text-slate-400">Ngày đặt:</span> <span className="font-medium text-slate-900 dark:text-white ml-1">{selectedOrder.createdAt ? new Date(selectedOrder.createdAt).toLocaleString('vi-VN') : '—'}</span></div>
               <div className="flex items-center gap-2">
-                <span className="text-slate-500 dark:text-slate-400">Trạng thái:</span>
-                <select value={updateStatus} onChange={(e) => setUpdateStatus(e.target.value)} className="text-sm border border-slate-200 rounded px-2 py-1 outline-none cursor-pointer">
+                <select value={updateStatus} onChange={(e) => setUpdateStatus(e.target.value)} className="text-sm border border-slate-200 dark:border-slate-700 bg-transparent rounded px-2 py-1 outline-none cursor-pointer text-slate-900 dark:text-white">
                   <option value="PENDING">Chờ xác nhận</option>
-                  <option value="SHIPPING">Đang giao</option>
-                  <option value="DELIVERED">Đã giao</option>
+                  <option value="CONFIRMED">Đã xác nhận</option>
+                  <option value="PROCESSING">Đang chuẩn bị</option>
+                  <option value="SHIPPING">Đang giao hàng</option>
+                  <option value="DELIVERED">Đã giao hàng</option>
                   <option value="CANCELLED">Đã hủy</option>
                 </select>
               </div>
+              <div className="col-span-2">
+                <span className="text-slate-500 dark:text-slate-400 block mb-1">Ghi chú trạng thái (tùy chọn):</span>
+                <input 
+                  type="text" 
+                  value={updateDescription} 
+                  onChange={(e) => setUpdateDescription(e.target.value)}
+                  placeholder="Ví dụ: Đang đóng gói hàng, Shipper đã lấy hàng..."
+                  className="w-full text-sm border border-slate-200 dark:border-slate-700 bg-transparent rounded px-3 py-2 outline-none text-slate-900 dark:text-white"
+                />
+              </div>
               <div className="col-span-2"><span className="text-slate-500 dark:text-slate-400">Địa chỉ:</span> <span className="font-medium text-slate-900 dark:text-white ml-1">{selectedOrder.address}</span></div>
             </div>
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Lịch trình đơn hàng</h4>
+              <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                {trackingHistory.map((t, idx) => (
+                  <div key={idx} className="flex gap-3 text-xs">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-brand-500' : 'bg-slate-300'} mt-1.5`} />
+                      {idx !== trackingHistory.length - 1 && <div className="w-px flex-1 bg-slate-200 my-1" />}
+                    </div>
+                    <div className="pb-3">
+                      <p className={`font-medium ${idx === 0 ? 'text-brand-600' : 'text-slate-700 dark:text-slate-300'}`}>{t.description}</p>
+                      <p className="text-slate-400">{new Date(t.createdAt).toLocaleString('vi-VN')}</p>
+                    </div>
+                  </div>
+                ))}
+                {trackingHistory.length === 0 && <p className="text-slate-400 italic text-xs">Chưa có lịch trình.</p>}
+              </div>
+            </div>
+
             <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
               <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Sản phẩm</h4>
               {selectedOrder.items && selectedOrder.items.map((item, idx) => (

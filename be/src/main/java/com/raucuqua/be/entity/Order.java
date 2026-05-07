@@ -32,7 +32,7 @@ public class Order {
     private String orderCode;
     private String promotionCode;
     private String status = "PENDING";
-    
+    private LocalDateTime estimatedDeliveryDate;
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -11,10 +11,21 @@ const formatVND = (n) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
 
 const STATUS_MAP = {
-  'PENDING': { label: 'Đang xử lý', color: 'text-amber-600', bg: 'bg-amber-50', icon: <Clock size={14} /> },
-  'COMPLETED': { label: 'Đã giao hàng', color: 'text-emerald-600', bg: 'bg-emerald-50', icon: <CheckCircle2 size={14} /> },
+  'PENDING': { label: 'Chờ xác nhận', color: 'text-amber-600', bg: 'bg-amber-50', icon: <Clock size={14} /> },
+  'CONFIRMED': { label: 'Đã xác nhận', color: 'text-blue-600', bg: 'bg-blue-50', icon: <CheckCircle2 size={14} /> },
+  'PROCESSING': { label: 'Đang chuẩn bị', color: 'text-indigo-600', bg: 'bg-indigo-50', icon: <Package size={14} /> },
+  'SHIPPING': { label: 'Đang giao hàng', color: 'text-purple-600', bg: 'bg-purple-50', icon: <Clock size={14} /> },
+  'DELIVERED': { label: 'Đã giao hàng', color: 'text-emerald-600', bg: 'bg-emerald-50', icon: <CheckCircle2 size={14} /> },
   'CANCELLED': { label: 'Đã hủy', color: 'text-rose-600', bg: 'bg-rose-50', icon: <Package size={14} /> },
 };
+
+const STEPS = [
+  { status: 'PENDING', label: 'Đặt hàng' },
+  { status: 'CONFIRMED', label: 'Xác nhận' },
+  { status: 'PROCESSING', label: 'Chuẩn bị' },
+  { status: 'SHIPPING', label: 'Giao hàng' },
+  { status: 'DELIVERED', label: 'Hoàn tất' }
+];
 
 const OrderHistory = ({ onBack }) => {
   const { user, isAuthenticated } = useAuth();
@@ -22,6 +33,8 @@ const OrderHistory = ({ onBack }) => {
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [tracking, setTracking] = useState({});
+  const [loadingTracking, setLoadingTracking] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -41,6 +54,33 @@ const OrderHistory = ({ onBack }) => {
       console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTracking = async (orderId) => {
+    try {
+      setLoadingTracking(true);
+      const response = await fetch(`http://localhost:8082/api/orders/${orderId}/tracking`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`Tracking data for order ${orderId}:`, data);
+        setTracking(prev => ({ ...prev, [orderId]: data }));
+      } else {
+        console.error(`Failed to fetch tracking for order ${orderId}:`, response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching tracking:', error);
+    } finally {
+      setLoadingTracking(false);
+    }
+  };
+
+  const handleExpand = (orderId) => {
+    if (expandedOrder === orderId) {
+      setExpandedOrder(null);
+    } else {
+      setExpandedOrder(orderId);
+      fetchTracking(orderId);
     }
   };
 
@@ -128,7 +168,7 @@ const OrderHistory = ({ onBack }) => {
               >
                 <div 
                   className="p-4 sm:p-6 cursor-pointer hover:bg-slate-50/50 transition-colors"
-                  onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                  onClick={() => handleExpand(order.id)}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
@@ -174,8 +214,75 @@ const OrderHistory = ({ onBack }) => {
                       className="border-t border-slate-50 overflow-hidden"
                     >
                       <div className="p-4 sm:p-6 bg-slate-50/30">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                          <div className="space-y-3">
+                        {/* Delivery Stepper */}
+                        <div className="mb-10 px-2">
+                          <div className="flex justify-between items-start relative">
+                            {/* Connection Line */}
+                            <div className="absolute top-4 left-0 w-full h-0.5 bg-slate-200 -z-10" />
+                            <div 
+                              className="absolute top-4 left-0 h-0.5 bg-emerald-500 transition-all duration-500 -z-10" 
+                              style={{ 
+                                width: `${(STEPS.findIndex(s => s.status === order.status) / (STEPS.length - 1)) * 100}%` 
+                              }}
+                            />
+                            
+                            {STEPS.map((step, idx) => {
+                              const currentIdx = STEPS.findIndex(s => s.status === order.status);
+                              const isCompleted = idx <= currentIdx && order.status !== 'CANCELLED';
+                              const isCurrent = idx === currentIdx;
+                              
+                              return (
+                                <div key={step.status} className="flex flex-col items-center gap-2">
+                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                                    isCompleted 
+                                      ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-200' 
+                                      : 'bg-white border-slate-200 text-slate-300'
+                                  } ${isCurrent ? 'ring-4 ring-emerald-100 scale-110' : ''}`}>
+                                    {isCompleted ? <CheckCircle2 size={16} /> : <div className="w-2 h-2 rounded-full bg-current" />}
+                                  </div>
+                                  <span className={`text-[10px] font-bold uppercase tracking-tight ${isCompleted ? 'text-emerald-700' : 'text-slate-400'}`}>
+                                    {step.label}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                          <div className="space-y-6">
+                            {/* Tracking History */}
+                            <div className="space-y-4">
+                              <h4 className="font-bold text-slate-800 flex items-center gap-2">
+                                <Clock size={16} className="text-emerald-500"/> Lịch trình đơn hàng
+                              </h4>
+                              <div className="relative pl-6 space-y-6 border-l border-emerald-100 ml-2">
+                                {loadingTracking && !tracking[order.id] ? (
+                                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                                    <div className="w-3 h-3 border-2 border-emerald-200 border-t-emerald-500 rounded-full animate-spin" />
+                                    <span>Đang tải lịch trình...</span>
+                                  </div>
+                                ) : tracking[order.id]?.length > 0 ? (
+                                  tracking[order.id].map((t, idx) => (
+                                    <div key={t.id} className="relative">
+                                      <div className={`absolute -left-[29px] top-1 w-3 h-3 rounded-full border-2 border-white ${idx === 0 ? 'bg-emerald-500' : 'bg-emerald-200'}`} />
+                                      <div className="flex flex-col">
+                                        <span className={`text-xs font-bold ${idx === 0 ? 'text-emerald-700' : 'text-slate-500'}`}>
+                                          {t.description}
+                                        </span>
+                                        <span className="text-[10px] text-slate-400">
+                                          {new Date(t.createdAt).toLocaleString('vi-VN')}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p className="text-xs text-slate-400 italic">Chưa có lịch trình.</p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="space-y-3">
                             <h4 className="font-bold text-slate-800 flex items-center gap-2"><MapPin size={16} className="text-emerald-500"/> Địa chỉ nhận hàng</h4>
                             <div className="text-sm text-slate-600 space-y-1">
                               <p className="font-bold">{order.fullName}</p>
@@ -195,8 +302,9 @@ const OrderHistory = ({ onBack }) => {
                             </div>
                           </div>
                         </div>
+                      </div>
 
-                        <div className="space-y-3">
+                      <div className="space-y-3">
                           <h4 className="font-bold text-slate-800 mb-2">Sản phẩm đã mua</h4>
                           {order.items?.map((item) => (
                             <div key={item.id} className="flex items-center gap-4 bg-white p-3 rounded-xl border border-emerald-50">
