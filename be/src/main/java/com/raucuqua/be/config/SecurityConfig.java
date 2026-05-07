@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/profiles/**").permitAll()
                         .requestMatchers("/api/admin/promotions/**", "/api/promotions/**").permitAll()
                         .requestMatchers("/api/admin/dashboard/**", "/api/admin/reports/**").permitAll()
+                        .requestMatchers("/api/reviews/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag, Check } from 'lucide-react';
+import ProductReviews from './ProductReviews';
 
 const ProductDetail = ({ product, isOpen, onClose, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
@@ -196,6 +197,9 @@ const ProductDetail = ({ product, isOpen, onClose, onAddToCart }) => {
                     <ShoppingBag size={20} className="sm:w-[22px] sm:h-[22px]" />
                     Thêm Vào Giỏ Hàng
                   </button>
+
+                  {/* Đánh giá & Bình luận */}
+                  <ProductReviews productId={product.id} />
                 </div>
 
               </motion.div>
