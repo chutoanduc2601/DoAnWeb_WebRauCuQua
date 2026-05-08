@@ -14,6 +14,7 @@ import OrderHistory from './components/OrderHistory';
 import UserProfile from './components/UserProfile';
 import SalesNotification from './components/SalesNotification';
 import PromotionsUser from './components/PromotionsUser';
+import ChatWidget from './components/ChatWidget';
 import AdminLayout from './admin/AdminLayout';
 import ResetPassword from './components/ResetPassword';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -209,6 +210,7 @@ function UserApp() {
 
       </AnimatePresence>
       <SalesNotification />
+      <ChatWidget />
     </div>
   );
 }
