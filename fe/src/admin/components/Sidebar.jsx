@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { LayoutDashboard, Package, FolderTree, ShoppingCart, Users, Ticket, BarChart3, UserCog, ArrowLeft, X, Leaf } from 'lucide-react';
+import { LayoutDashboard, Package, FolderTree, ShoppingCart, Users, Ticket, BarChart3, UserCog, ArrowLeft, X, Leaf, MessageCircle } from 'lucide-react';
+import { chatService } from '../../services/chatService';
 
 const menuItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Tổng quan', end: true },
@@ -11,9 +12,30 @@ const menuItems = [
   { to: '/admin/promotions', icon: Ticket, label: 'Khuyến mãi' },
   { to: '/admin/reports', icon: BarChart3, label: 'Báo cáo' },
   { to: '/admin/accounts', icon: UserCog, label: 'Tài khoản' },
+  { to: '/admin/chat', icon: MessageCircle, label: 'Hỗ trợ' },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
+  const [totalUnread, setTotalUnread] = useState(0);
+
+  useEffect(() => {
+    // Initial fetch to get unread count
+    const fetchUnread = async () => {
+      const convs = await chatService.getConversations();
+      const count = convs.reduce((acc, c) => acc + (c.unread_count || 0), 0);
+      setTotalUnread(count);
+    };
+    fetchUnread();
+
+    // Subscribe to changes
+    const sub = chatService.subscribeToConversations(() => {
+      fetchUnread();
+    });
+
+    return () => {
+      if (sub) sub.unsubscribe();
+    };
+  }, []);
   return (
     <>
       {/* Mobile overlay */}
@@ -57,7 +79,14 @@ export default function Sidebar({ isOpen, onClose }) {
                   }
                 >
                   <item.icon className="w-5 h-5 shrink-0" />
-                  <span>{item.label}</span>
+                  <div className="flex flex-1 items-center justify-between">
+                    <span>{item.label}</span>
+                    {item.to === '/admin/chat' && totalUnread > 0 && (
+                      <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        {totalUnread}
+                      </span>
+                    )}
+                  </div>
                 </NavLink>
               </li>
             ))}
