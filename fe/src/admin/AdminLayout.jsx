@@ -12,6 +12,7 @@ import Promotions from './pages/Promotions';
 import Reports from './pages/Reports';
 import Accounts from './pages/Accounts';
 import ChatSupport from './pages/ChatSupport';
+import Returns from './pages/Returns';
 import './AdminLayout.css';
 import { Bell, MessageCircle } from 'lucide-react';
 import { chatService } from '../services/chatService';
@@ -26,6 +27,7 @@ const pageTitles = {
   '/admin/reports': 'Báo cáo thống kê',
   '/admin/accounts': 'Quản lý tài khoản',
   '/admin/chat': 'Hỗ trợ khách hàng',
+  '/admin/returns': 'Hoàn hàng / Khiếu nại',
 };
 
 export default function AdminLayout() {
@@ -165,6 +167,7 @@ export default function AdminLayout() {
             <Route path="reports" element={<Reports />} />
             <Route path="accounts" element={<Accounts />} />
             <Route path="chat" element={<ChatSupport />} />
+            <Route path="returns" element={<Returns />} />
           </Routes>
         </main>
       </div>
