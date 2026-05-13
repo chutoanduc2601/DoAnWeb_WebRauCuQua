@@ -123,6 +123,19 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validation
+    if (cartItems.length === 0) {
+      setError('Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm trước khi thanh toán.');
+      return;
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(form.phone.replace(/\s/g, ''))) {
+      setError('Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 chữ số.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 

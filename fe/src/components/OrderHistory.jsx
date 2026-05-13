@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShoppingBag, Calendar, MapPin, ChevronRight, 
   ChevronDown, Package, Clock, CheckCircle2, 
-  ArrowLeft, Search, Filter, Leaf, AlertCircle
+  ArrowLeft, Search, Filter, Leaf, AlertCircle, ArrowRight
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ReturnRequestModal from './ReturnRequestModal';
@@ -188,19 +188,36 @@ const OrderHistory = ({ onBack }) => {
         </div>
 
         {filteredOrders.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-emerald-100 flex flex-col items-center">
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6 text-emerald-400">
-              <ShoppingBag size={40} />
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white/60 backdrop-blur-xl rounded-[2.5rem] p-12 sm:p-16 text-center border border-emerald-100 shadow-xl shadow-emerald-900/5 flex flex-col items-center"
+          >
+            <div className="relative mb-8">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-full flex items-center justify-center text-emerald-500 shadow-inner">
+                <ShoppingBag size={48} className="sm:w-16 sm:h-16" />
+              </div>
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute -top-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg"
+              >
+                0
+              </motion.div>
             </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Chưa có đơn hàng nào</h3>
-            <p className="text-slate-500 mb-8 max-w-xs">Có vẻ như bạn chưa đặt món quà xanh nào từ Farmily.</p>
-            <button 
+            <h3 className="text-2xl font-black text-slate-800 mb-3 tracking-tight">Giỏ hàng của bạn đang "xanh"</h3>
+            <p className="text-slate-500 mb-10 max-w-sm leading-relaxed font-medium">
+              Có vẻ như bạn chưa đặt món quà xanh nào từ Farmily. Hãy bắt đầu hành trình sống khỏe ngay hôm nay!
+            </p>
+            <motion.button 
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onBack}
-              className="px-8 py-3 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200"
+              className="px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold rounded-2xl hover:shadow-2xl hover:shadow-emerald-200 transition-all flex items-center gap-2"
             >
-              Mua sắm ngay
-            </button>
-          </div>
+              Khám phá thực phẩm sạch <ArrowRight size={20} />
+            </motion.button>
+          </motion.div>
         ) : (
           <div className="space-y-4">
             {filteredOrders.map((order) => (

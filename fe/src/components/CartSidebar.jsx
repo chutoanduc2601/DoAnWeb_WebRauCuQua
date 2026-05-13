@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Minus, Plus, Trash2, ShoppingBag, Truck, ArrowRight } from 'lucide-react';
+// Icons from Font Awesome CDN
 
 const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, onCheckout }) => {
     // Tính tổng tiền
@@ -36,7 +36,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-white text-slate-800">
                             <div>
                                 <h2 className="text-xl font-bold flex items-center gap-2">
-                                    <ShoppingBag size={24} className="text-brand-600" />
+                                    <i className="fa-solid fa-shopping-basket text-brand-600 text-2xl"></i>
                                     Giỏ Hàng
                                 </h2>
                                 <p className="text-xs text-slate-400 mt-0.5">{cartItems.length} sản phẩm trong giỏ</p>
@@ -45,7 +45,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                                 onClick={onClose}
                                 className="p-2.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-all hover:rotate-90"
                             >
-                                <X size={20} />
+                                <i className="fa-solid fa-xmark text-lg"></i>
                             </button>
                         </div>
 
@@ -54,7 +54,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                             <div className="px-6 py-4 bg-brand-50/50 border-b border-brand-100/50">
                                 <div className="flex items-center gap-2 mb-2">
                                     <div className={`p-1.5 rounded-lg ${progress === 100 ? 'bg-emerald-500' : 'bg-brand-500'} text-white`}>
-                                        <Truck size={14} />
+                                        <i className="fa-solid fa-truck-fast text-xs"></i>
                                     </div>
                                     <span className="text-sm font-semibold text-slate-700">
                                         {progress === 100 
@@ -81,7 +81,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                                         animate={{ scale: 1, opacity: 1 }}
                                         className="w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-full flex items-center justify-center shadow-inner"
                                     >
-                                        <ShoppingBag size={48} className="text-slate-200" />
+                                        <i className="fa-solid fa-shopping-cart text-4xl text-slate-200"></i>
                                     </motion.div>
                                     <div className="text-center">
                                         <p className="text-lg font-bold text-slate-600">Giỏ hàng trống trơn</p>
@@ -119,7 +119,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                                                             onClick={() => onRemove(item.id)}
                                                             className="text-slate-300 hover:text-red-500 transition-colors p-1"
                                                         >
-                                                            <Trash2 size={16} />
+                                                            <i className="fa-solid fa-trash-can text-sm"></i>
                                                         </button>
                                                     </div>
                                                     
@@ -138,7 +138,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                                                                 }}
                                                                 className="w-7 h-7 flex items-center justify-center rounded-lg bg-white hover:bg-slate-100 text-slate-600 shadow-sm transition-colors border border-slate-100"
                                                             >
-                                                                <Minus size={14} />
+                                                                <i className="fa-solid fa-minus text-[10px]"></i>
                                                             </button>
                                                             <div className="flex items-center px-1">
                                                                 <input
@@ -169,7 +169,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                                                                 }}
                                                                 className="w-7 h-7 flex items-center justify-center rounded-lg bg-white hover:bg-slate-100 text-slate-600 shadow-sm transition-colors border border-slate-100"
                                                             >
-                                                                <Plus size={14} />
+                                                                <i className="fa-solid fa-plus text-[10px]"></i>
                                                             </button>
                                                         </div>
 
@@ -215,7 +215,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                                     onClick={() => { onClose(); onCheckout?.(); }}
                                     className="group w-full py-4 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-brand-500/25 hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-2">
                                     Tiến Hành Thanh Toán
-                                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                    <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                                 </button>
                                 <p className="text-center text-[11px] text-slate-400 mt-4">
                                     Cam kết rau củ sạch 100% - Đổi trả trong 24h

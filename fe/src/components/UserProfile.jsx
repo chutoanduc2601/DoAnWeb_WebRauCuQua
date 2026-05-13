@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Phone, MapPin, Save, ArrowLeft, Loader2, CheckCircle2, ShieldCheck, Mail, Calendar } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 
 const UserProfile = ({ onBack }) => {
@@ -28,8 +29,20 @@ const UserProfile = ({ onBack }) => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
+    // Validation
+    const phoneRegex = /^[0-9]{10}$/;
+    if (formData.phone && !phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
+      setMessage({ type: 'error', text: 'Số điện thoại phải có đúng 10 chữ số.' });
+      setLoading(false);
+      return;
+    }
+
     try {
       await updateProfile(formData);
+      toast.success('Cập nhật thông tin thành công!', {
+        icon: '👤',
+        style: { borderRadius: '12px', background: '#059669', color: '#fff' }
+      });
       setMessage({ type: 'success', text: 'Thông tin của bạn đã được cập nhật an toàn!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 4000);
     } catch (error) {
