@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Leaf, ShieldCheck, HeartHandshake, Sprout, HeartPulse, Recycle } from 'lucide-react';
 
 const STORIES = [
   {
     id: 1,
     badgeTitle: '100% Organic',
     badgeSub: 'Giữ trọn vẹn tinh túy đất trời',
-    badgeIcon: Leaf,
+    badgeIcon: 'fa-leaf',
     title1: 'Hành trình chân thực',
     title2: 'từ Nông trại đến Bàn ăn',
     description: 'Chúng tôi từng chứng kiến những giọt mồ hôi của người nông dân nâng niu từng mầm xanh khỏe mạnh, nhưng lại bị kẹt giữa chuỗi cung ứng phức tạp khiến rau quả mất đi sự tươi ngon. Vì vậy, chiếc cầu nối trực tiếp này ra đời.',
     img: 'https://danviet.ex-cdn.com/files/f1/upload/3-2015/images/2015-09-11/1441924958-rau.jpg',
     features: [
       {
-        icon: ShieldCheck,
+        icon: 'fa-shield-halved',
         title: 'Nguồn Gốc Minh Bạch',
         desc: 'Tuyệt đối không qua tay gian thương. Tất cả sản phẩm đều được thu hoạch trực tiếp tại nông trại đạt chuẩn VietGAP & GlobalGAP.'
       },
       {
-        icon: HeartHandshake,
+        icon: 'fa-hands-holding-heart',
         title: 'Tôn vinh Giá Trị Yêu Thương',
         desc: 'Bạn đang không chỉ mua một bữa ăn an toàn cho gia đình, mà còn đang đóng góp trực tiếp nâng cao sinh kế cho nhà nông Việt.'
       }
@@ -30,19 +29,19 @@ const STORIES = [
     id: 2,
     badgeTitle: 'Healthy Choice',
     badgeSub: 'Tái tạo năng lượng sống',
-    badgeIcon: HeartPulse,
+    badgeIcon: 'fa-heart-pulse',
     title1: 'Sức khoẻ nguyên sơ',
     title2: 'bắt đầu từ Mâm cơm',
     description: 'Giữa thực trạng thực phẩm bẩn tràn lan, chúng tôi thấu hiểu nỗi hoang mang của bạn. Rời xa sự hối hả, chúng tôi đi tìm những vùng đất tinh khiết nhất để mang về hương vị thanh thuần giúp chữa lành cơ thể bạn.',
     img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=1200&auto=format&fit=crop',
     features: [
       {
-        icon: Sprout,
+        icon: 'fa-seedling',
         title: 'Dưỡng Chất Thuần Khiết',
         desc: 'Canh tác không hóa chất giúp bảo toàn tối đa lượng vitamin và enzim thiết yếu, hồi phục sức đề kháng tự nhiên cho cơ thể.'
       },
       {
-        icon: ShieldCheck,
+        icon: 'fa-user-shield',
         title: 'Bảo Vệ Cả Gia Đình',
         desc: 'Quy trình xét nghiệm tồn dư sinh học gắt gao nhất, giúp bạn yên tâm rửa rau nhặt lá mà không hề lo âu.'
       }
@@ -53,24 +52,93 @@ const STORIES = [
     id: 3,
     badgeTitle: 'Eco Friendly',
     badgeSub: 'Bảo vệ hệ sinh thái',
-    badgeIcon: Recycle,
+    badgeIcon: 'fa-recycle',
     title1: 'Mua sắm thông minh',
     title2: 'Bảo vệ Trái Đất xanh',
     description: 'Mỗi trái cà chua, mớ hành bạn chọn hôm nay là một cái ôm dành cho hành tinh. Canh tác thuận tự nhiên và vật liệu xanh là cách chúng tôi tạo ra vòng tuần hoàn bất tận cho hệ sinh thái tương lai.',
-    img: 'https://images.unsplash.com/photo-1505935428862-770b6f24f629?q=80&w=1200&auto=format&fit=crop',
+    img: 'https://media02.scp.gov.vn/Images/Upload/User/quantri/2024/1/tieu-dung-xanh-02-1706153200.jpg',
     features: [
       {
-        icon: Leaf,
+        icon: 'fa-tree',
         title: 'Thuận Tự Nhiên',
         desc: 'Không sử dụng thuốc diệt cỏ. Chúng tôi duy trì đa dạng sinh thái, để thiên địch tự diệt sâu bọ và làm giàu thêm cho cấu trúc đất.'
       },
       {
-        icon: HeartHandshake,
+        icon: 'fa-earth-asia',
         title: 'Gìn Giữ Môi Trường',
         desc: 'Nỗ lực không ngừng nghỉ trong việc đóng gói với túi giấy tự phân hủy, giảm tối đa rác thải nhựa trong từng khâu vận chuyển.'
       }
     ],
     quote: '"Một bữa cơm ngon nhất không chỉ khỏe cho cơ thể, mà còn không để lại tì vết nào lên sự trong lành của tự nhiên."'
+  },
+  {
+    id: 4,
+    badgeTitle: 'Local Pride',
+    badgeSub: 'Gói trọn tình quê',
+    badgeIcon: 'fa-house-chimney-window',
+    title1: 'Gieo mầm niềm tin',
+    title2: 'Kết nối tình làng nghĩa xóm',
+    description: 'Farmily không chỉ là một cửa hàng, mà là một cộng đồng nơi những hộ nông dân nhỏ lẻ tìm thấy đầu ra bền vững. Chúng tôi tin rằng khi người sản xuất được tôn trọng, sản phẩm họ tạo ra sẽ mang theo cả tâm huyết và sự tử tế.',
+    img: 'https://cly.1cdn.vn/2024/02/06/lang-xom3.jpg',
+    features: [
+      {
+        icon: 'fa-handshake-angle',
+        title: 'Hợp Tác Công Bằng',
+        desc: 'Chúng tôi mua nông sản với giá cao hơn thị trường để đảm bảo đời sống cho nông dân, khích lệ họ giữ vững tiêu chuẩn hữu cơ.'
+      },
+      {
+        icon: 'fa-people-group',
+        title: 'Cùng Nhau Phát Triển',
+        desc: 'Mỗi hóa đơn của bạn giúp xây dựng các lớp đào tạo kỹ thuật xanh cho thanh niên nông thôn quay lại khởi nghiệp trên chính mảnh đất quê hương.'
+      }
+    ],
+    quote: '"Khi ta sẻ chia hạnh phúc với người gieo hạt, mùa thu hoạch nào cũng sẽ trở nên ngọt ngào vô hạn."'
+  },
+  {
+    id: 5,
+    badgeTitle: 'Fresh Technology',
+    badgeSub: 'Lạnh từ nguồn, tươi trọn vẹn',
+    badgeIcon: 'fa-snowflake',
+    title1: 'Công nghệ bảo quản',
+    title2: 'Lưu giữ độ giòn tan',
+    description: 'Chúng tôi đầu tư vào hệ thống kho lạnh và vận chuyển khép kín để đảm bảo rau quả được đưa vào "trạng thái ngủ đông" ngay sau khi thu hoạch. Điều này giúp giữ nguyên cấu trúc tế bào và độ tươi mới như vừa hái tại cành.',
+    img: 'https://file.hstatic.net/200000721249/article/cach_bao_quan_thuc_pham_ngon_86e6a2cbfaae4bb798cd494868d822c8_1024x1024.png',
+    features: [
+      {
+        icon: 'fa-truck-fast',
+        title: 'Vận Chuyển Siêu Tốc',
+        desc: 'Thời gian từ nông trại đến kệ hàng được rút ngắn dưới 6 tiếng, loại bỏ hoàn toàn việc sử dụng chất bảo quản độc hại.'
+      },
+      {
+        icon: 'fa-temperature-low',
+        title: 'Kiểm Soát Nhiệt Độ',
+        desc: 'Hệ thống cảm biến IoT theo dõi nhiệt độ 24/7 trong suốt hành trình di chuyển của từng thùng hàng.'
+      }
+    ],
+    quote: '"Chúng tôi không đánh bại thời gian, chúng tôi chỉ tìm cách làm cho nó ngừng trôi trên từng chiếc lá xanh."'
+  },
+  {
+    id: 6,
+    badgeTitle: 'Culinary Art',
+    badgeSub: 'Khơi nguồn cảm hứng bếp',
+    badgeIcon: 'fa-utensils',
+    title1: 'Nghệ thuật ẩm thực',
+    title2: 'Khám phá hương vị thực thụ',
+    description: 'Một nguyên liệu tốt là khởi đầu của một món ăn tuyệt hảo. Farmily mong muốn khơi dậy đam mê nấu nướng trong bạn, biến những bữa ăn gia đình thành những khoảnh khắc nghệ thuật đầy màu sắc và dinh dưỡng.',
+    img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=1200&auto=format&fit=crop',
+    features: [
+      {
+        icon: 'fa-wand-magic-sparkles',
+        title: 'Khơi Nguồn Sáng Tạo',
+        desc: 'Cung cấp các loại gia vị và rau củ lạ, giúp bạn làm mới thực đơn hàng ngày với những món ăn chuẩn vị nhà hàng.'
+      },
+      {
+        icon: 'fa-apple-whole',
+        title: 'Dinh Dưỡng Cân Bằng',
+        desc: 'Chuyên gia dinh dưỡng của chúng tôi tư vấn cách kết hợp thực phẩm để tối ưu hóa hấp thụ vitamin cho từng lứa tuổi.'
+      }
+    ],
+    quote: '"Nấu nướng là một cách để nói lời yêu thương. Với nguyên liệu từ Farmily, lời yêu đó sẽ trở nên trọn vẹn hơn bao giờ hết."'
   }
 ];
 
@@ -78,7 +146,6 @@ const StorySection = () => {
   const [currentStory, setCurrentStory] = useState(null);
 
   useEffect(() => {
-    // Select randomly on load
     const randomIndex = Math.floor(Math.random() * STORIES.length);
     setCurrentStory(STORIES[randomIndex]);
   }, []);
@@ -96,14 +163,10 @@ const StorySection = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
   };
 
-  // Prevent render before client-side hydration picks the random story
   if (!currentStory) return null;
-
-  const BadgeIcon = currentStory.badgeIcon;
 
   return (
     <section id="about" className="py-12 sm:py-16 md:py-24 bg-brand-50 overflow-hidden relative">
-      {/* Background Decorative element */}
       <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 sm:w-80 md:w-96 h-64 sm:h-80 md:h-96 bg-brand-200 rounded-full blur-3xl opacity-50 mix-blend-multiply"></div>
 
       <div className="container mx-auto px-4 sm:px-6 md:px-8 relative z-10">
@@ -121,13 +184,13 @@ const StorySection = () => {
             <div className="relative">
               <img
                 src={currentStory.img}
-                alt="Nguồn sống tự nhiên"
+                alt={currentStory.title1}
                 className="rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl object-cover h-[280px] sm:h-[360px] md:h-[420px] lg:h-[500px] w-full"
               />
               <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 md:-bottom-8 md:-right-8 bg-white p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl max-w-[200px] sm:max-w-xs hidden sm:block border border-slate-100">
                 <div className="flex items-center gap-2 sm:gap-4 mb-1 sm:mb-2">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-brand-100 rounded-full flex items-center justify-center text-brand-600">
-                    <BadgeIcon size={18} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                    <i className={`fa-solid ${currentStory.badgeIcon} text-lg sm:text-xl`}></i>
                   </div>
                   <div>
                     <h4 className="font-extrabold text-slate-800 text-sm sm:text-base">{currentStory.badgeTitle}</h4>
@@ -161,12 +224,11 @@ const StorySection = () => {
 
             <div className="space-y-4 sm:space-y-6">
               {currentStory.features.map((feature, idx) => {
-                const FeatureIcon = feature.icon;
                 return (
                   <motion.div key={idx} variants={itemVariants} className="flex gap-3 sm:gap-4">
                     <div className="flex-shrink-0 mt-1">
                       <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-brand-500 border border-brand-100">
-                        <FeatureIcon size={16} className="sm:w-5 sm:h-5" />
+                        <i className={`fa-solid ${feature.icon} text-base sm:text-lg`}></i>
                       </div>
                     </div>
                     <div>
@@ -192,3 +254,4 @@ const StorySection = () => {
 };
 
 export default StorySection;
+
