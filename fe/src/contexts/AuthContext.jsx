@@ -8,8 +8,8 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Lấy profile từ bảng profiles
-  const fetchProfile = async (userId) => {
+  // Lấy profile từ bảng profiles, tự động tạo mới nếu chưa tồn tại (đặc biệt hữu ích cho luồng đăng nhập OAuth)
+  const fetchProfile = async (userId, userObj = null) => {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -17,6 +17,32 @@ export function AuthProvider({ children }) {
       .single();
 
     if (error) {
+      // PGRST116: Không tìm thấy kết quả nào
+      if (error.code === 'PGRST116' && userObj) {
+        console.log('Profile chưa tồn tại, tiến hành tạo mới cho OAuth user...');
+        const name = userObj.user_metadata?.full_name || userObj.user_metadata?.name || userObj.email?.split('@')[0] || 'Người dùng';
+        const avatar_url = userObj.user_metadata?.avatar_url || userObj.user_metadata?.picture || null;
+        
+        const newProfile = {
+          id: userId,
+          name,
+          avatar_url,
+          role: 'user',
+          created_at: new Date().toISOString()
+        };
+
+        const { data: insertedData, error: insertError } = await supabase
+          .from('profiles')
+          .insert([newProfile])
+          .select()
+          .single();
+
+        if (!insertError) {
+          return insertedData;
+        } else {
+          console.error('Lỗi khi tự động tạo profile:', insertError);
+        }
+      }
       console.error('Lỗi khi lấy profile:', error);
       return null;
     }
@@ -30,7 +56,7 @@ export function AuthProvider({ children }) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setUser(session.user);
-          const profileData = await fetchProfile(session.user.id);
+          const profileData = await fetchProfile(session.user.id, session.user);
           setProfile(profileData);
         }
       } catch (error) {
@@ -47,9 +73,9 @@ export function AuthProvider({ children }) {
       async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user);
-          // Đợi 1 chút để trigger tạo profile hoàn tất
+          // Đợi 1 chút để trigger tạo profile hoàn tất, nếu không có sẽ tự động chèn
           setTimeout(async () => {
-            const profileData = await fetchProfile(session.user.id);
+            const profileData = await fetchProfile(session.user.id, session.user);
             setProfile(profileData);
           }, 500);
         } else if (event === 'SIGNED_OUT') {
@@ -78,7 +104,7 @@ export function AuthProvider({ children }) {
     if (data.user) {
       // Đợi trigger tạo profile
       await new Promise(resolve => setTimeout(resolve, 1000));
-      const profileData = await fetchProfile(data.user.id);
+      const profileData = await fetchProfile(data.user.id, data.user);
       setProfile(profileData);
     }
 
@@ -95,10 +121,22 @@ export function AuthProvider({ children }) {
     if (error) throw error;
 
     if (data.user) {
-      const profileData = await fetchProfile(data.user.id);
+      const profileData = await fetchProfile(data.user.id, data.user);
       setProfile(profileData);
     }
 
+    return data;
+  };
+
+  // Đăng nhập bằng OAuth (Google, Facebook)
+  const signInWithOAuth = async (provider) => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+    if (error) throw error;
     return data;
   };
 
@@ -150,6 +188,7 @@ export function AuthProvider({ children }) {
     loading,
     signUp,
     signIn,
+    signInWithOAuth,
     signOut,
     updateProfile,
     resetPassword,
