@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
@@ -23,11 +23,21 @@ function UserApp() {
   const navigate = useNavigate();
   const { user, profile, signOut, isAdmin, isAuthenticated, loading } = useAuth();
 
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem('farmily_cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [view, setView] = useState('home');
+
+  // Lưu giỏ hàng vào localStorage khi có thay đổi
+  useEffect(() => {
+    localStorage.setItem('farmily_cart', JSON.stringify(cartItems));
+  }, [cartItems]);
+
 
   const handleAddToCart = (product) => {
     const qtyToAdd = product.quantity || 1;
