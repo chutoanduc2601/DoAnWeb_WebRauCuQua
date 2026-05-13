@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShoppingBag, Calendar, MapPin, ChevronRight, 
   ChevronDown, Package, Clock, CheckCircle2, 
-  ArrowLeft, Search, Filter, Leaf
+  ArrowLeft, Search, Filter, Leaf, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import ReturnRequestModal from './ReturnRequestModal';
 
 const formatVND = (n) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
@@ -35,12 +36,32 @@ const OrderHistory = ({ onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [tracking, setTracking] = useState({});
   const [loadingTracking, setLoadingTracking] = useState(false);
+  const [returnRequests, setReturnRequests] = useState({});
+  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [selectedOrderForReturn, setSelectedOrderForReturn] = useState(null);
 
   useEffect(() => {
     if (isAuthenticated && user) {
       fetchOrders();
+      fetchReturnRequests();
     }
   }, [isAuthenticated, user]);
+
+  const fetchReturnRequests = async () => {
+    try {
+      const response = await fetch(`http://localhost:8082/api/returns/user/${user.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        const returnsMap = {};
+        data.forEach(req => {
+          returnsMap[req.order.id] = req;
+        });
+        setReturnRequests(returnsMap);
+      }
+    } catch (error) {
+      console.error('Error fetching return requests:', error);
+    }
+  };
 
   const fetchOrders = async () => {
     try {
@@ -82,6 +103,28 @@ const OrderHistory = ({ onBack }) => {
       setExpandedOrder(orderId);
       fetchTracking(orderId);
     }
+  };
+
+  const handleOpenReturnModal = (e, order) => {
+    e.stopPropagation();
+    setSelectedOrderForReturn(order);
+    setIsReturnModalOpen(true);
+  };
+
+  const isReturnable = (order) => {
+    if (order.status !== 'DELIVERED') return false;
+    
+    // Use the latest tracking entry's date as the delivered date
+    const orderTracking = tracking[order.id];
+    if (orderTracking && orderTracking.length > 0) {
+      const deliveredDate = new Date(orderTracking[0].createdAt).getTime();
+      const now = new Date().getTime();
+      const daysDiff = (now - deliveredDate) / (1000 * 3600 * 24);
+      return daysDiff <= 3;
+    }
+
+    // Fallback if tracking not loaded yet, just show the button
+    return true;
   };
 
   const filteredOrders = orders.filter(order => 
@@ -182,6 +225,11 @@ const OrderHistory = ({ onBack }) => {
                             {STATUS_MAP[order.status]?.icon}
                             {STATUS_MAP[order.status]?.label}
                           </span>
+                          {returnRequests[order.id] && (
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-200">
+                              Đã khiếu nại
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center gap-4 mt-1 text-slate-400 text-xs">
                           <span className="flex items-center gap-1"><Calendar size={12} /> {new Date(order.createdAt).toLocaleDateString('vi-VN')}</span>
@@ -324,6 +372,32 @@ const OrderHistory = ({ onBack }) => {
                             </div>
                           ))}
                         </div>
+
+                        {/* Return Request Section */}
+                        {returnRequests[order.id] ? (
+                          <div className="mt-6 p-4 bg-rose-50 border border-rose-100 rounded-xl">
+                            <h4 className="font-bold text-rose-700 mb-2 flex items-center gap-2">
+                              <AlertCircle size={16} /> Thông tin khiếu nại
+                            </h4>
+                            <div className="text-sm text-slate-700 space-y-1">
+                              <p><span className="font-medium">Lý do:</span> {returnRequests[order.id].reason}</p>
+                              <p><span className="font-medium">Trạng thái:</span> <span className="font-bold text-rose-600">{returnRequests[order.id].status}</span></p>
+                              {returnRequests[order.id].adminNote && (
+                                <p><span className="font-medium">Phản hồi:</span> {returnRequests[order.id].adminNote}</p>
+                              )}
+                            </div>
+                          </div>
+                        ) : isReturnable(order) ? (
+                          <div className="mt-6 flex justify-end">
+                            <button
+                              onClick={(e) => handleOpenReturnModal(e, order)}
+                              className="px-6 py-2.5 bg-white border-2 border-rose-500 text-rose-600 font-bold rounded-xl hover:bg-rose-50 hover:shadow-lg hover:shadow-rose-100 transition-all flex items-center gap-2"
+                            >
+                              <AlertCircle size={18} />
+                              Hoàn hàng / Khiếu nại
+                            </button>
+                          </div>
+                        ) : null}
                       </div>
                     </motion.div>
                   )}
@@ -333,6 +407,16 @@ const OrderHistory = ({ onBack }) => {
           </div>
         )}
       </main>
+
+      <ReturnRequestModal 
+        isOpen={isReturnModalOpen}
+        onClose={() => setIsReturnModalOpen(false)}
+        order={selectedOrderForReturn}
+        onSuccess={() => {
+          setIsReturnModalOpen(false);
+          fetchReturnRequests();
+        }}
+      />
     </div>
   );
 };

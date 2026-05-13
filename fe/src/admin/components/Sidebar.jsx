@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { LayoutDashboard, Package, FolderTree, ShoppingCart, Users, Ticket, BarChart3, UserCog, ArrowLeft, X, Leaf, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, Package, FolderTree, ShoppingCart, Users, Ticket, BarChart3, UserCog, ArrowLeft, X, Leaf, MessageCircle, RefreshCw } from 'lucide-react';
 import { chatService } from '../../services/chatService';
 
 const menuItems = [
@@ -10,6 +10,7 @@ const menuItems = [
   { to: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng' },
   { to: '/admin/customers', icon: Users, label: 'Khách hàng' },
   { to: '/admin/promotions', icon: Ticket, label: 'Khuyến mãi' },
+  { to: '/admin/returns', icon: RefreshCw, label: 'Hoàn/Khiếu nại' },
   { to: '/admin/reports', icon: BarChart3, label: 'Báo cáo' },
   { to: '/admin/accounts', icon: UserCog, label: 'Tài khoản' },
   { to: '/admin/chat', icon: MessageCircle, label: 'Hỗ trợ' },
