@@ -44,6 +44,9 @@ public class SecurityConfig {
                     return corsConfig;
                 }))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/returns/paged").permitAll()
+                        .requestMatchers("/api/returns/user/**").permitAll()
+                        .requestMatchers("/api/returns/**").permitAll()
                         .requestMatchers("/api/products/**").permitAll()
                         .requestMatchers("/api/orders/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
