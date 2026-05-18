@@ -221,9 +221,34 @@ function UserApp() {
         )}
 
         {view === 'promotions' && (
-          <div key="promotions">
+          <motion.div
+            key="promotions"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Navbar
+              cartItemCount={totalCartItemsCount}
+              onOpenCart={() => setIsCartOpen(true)}
+              user={currentUser}
+              onOpenAuth={() => setIsAuthOpen(true)}
+              onLogout={handleLogout}
+              onOpenHistory={() => setView('history')}
+              onOpenProfile={() => setView('profile')}
+              onOpenPromotions={() => setView('promotions')}
+            />
             <PromotionsUser onBack={() => setView('home')} />
-          </div>
+            <Footer />
+            <CartSidebar
+              isOpen={isCartOpen}
+              onClose={() => setIsCartOpen(false)}
+              cartItems={cartItems}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRemove={handleRemoveFromCart}
+              onCheckout={handleGoToCheckout}
+            />
+          </motion.div>
         )}
 
 
