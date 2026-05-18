@@ -192,19 +192,63 @@ function UserApp() {
         {view === 'profile' && (
           <motion.div
             key="profile"
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.3 }}
           >
+            <Navbar
+              cartItemCount={totalCartItemsCount}
+              onOpenCart={() => setIsCartOpen(true)}
+              user={currentUser}
+              onOpenAuth={() => setIsAuthOpen(true)}
+              onLogout={handleLogout}
+              onOpenHistory={() => setView('history')}
+              onOpenProfile={() => setView('profile')}
+              onOpenPromotions={() => setView('promotions')}
+            />
             <UserProfile onBack={() => setView('home')} />
+            <Footer />
+            <CartSidebar
+              isOpen={isCartOpen}
+              onClose={() => setIsCartOpen(false)}
+              cartItems={cartItems}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRemove={handleRemoveFromCart}
+              onCheckout={handleGoToCheckout}
+            />
           </motion.div>
         )}
 
         {view === 'promotions' && (
-          <div key="promotions">
+          <motion.div
+            key="promotions"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Navbar
+              cartItemCount={totalCartItemsCount}
+              onOpenCart={() => setIsCartOpen(true)}
+              user={currentUser}
+              onOpenAuth={() => setIsAuthOpen(true)}
+              onLogout={handleLogout}
+              onOpenHistory={() => setView('history')}
+              onOpenProfile={() => setView('profile')}
+              onOpenPromotions={() => setView('promotions')}
+            />
             <PromotionsUser onBack={() => setView('home')} />
-          </div>
+            <Footer />
+            <CartSidebar
+              isOpen={isCartOpen}
+              onClose={() => setIsCartOpen(false)}
+              cartItems={cartItems}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRemove={handleRemoveFromCart}
+              onCheckout={handleGoToCheckout}
+            />
+          </motion.div>
         )}
 
 
