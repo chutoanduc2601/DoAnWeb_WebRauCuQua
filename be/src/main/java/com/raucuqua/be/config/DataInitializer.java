@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
+// @Component  // Disabled: DB already initialized, no need to run count queries on startup
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired
