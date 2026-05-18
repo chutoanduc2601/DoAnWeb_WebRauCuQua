@@ -5,11 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, onCheckout }) => {
     // Tính tổng tiền
     const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    
-    // Giả định mức freeship là 500k
-    const freeShipLimit = 500000;
-    const progress = Math.min((totalPrice / freeShipLimit) * 100, 100);
-    const remainingForFreeShip = freeShipLimit - totalPrice;
+
 
     return (
         <AnimatePresence>
@@ -49,28 +45,6 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                             </button>
                         </div>
 
-                        {/* Free Shipping Progress */}
-                        {cartItems.length > 0 && (
-                            <div className="px-6 py-4 bg-brand-50/50 border-b border-brand-100/50">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className={`p-1.5 rounded-lg ${progress === 100 ? 'bg-emerald-500' : 'bg-brand-500'} text-white`}>
-                                        <i className="fa-solid fa-truck-fast text-xs"></i>
-                                    </div>
-                                    <span className="text-sm font-semibold text-slate-700">
-                                        {progress === 100 
-                                            ? 'Chúc mừng! Bạn được Miễn Phí Vận Chuyển' 
-                                            : `Mua thêm ${new Intl.NumberFormat('vi-VN').format(remainingForFreeShip)}đ để được Freeship`}
-                                    </span>
-                                </div>
-                                <div className="h-1.5 w-full bg-white rounded-full overflow-hidden border border-brand-100/30">
-                                    <motion.div 
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${progress}%` }}
-                                        className={`h-full ${progress === 100 ? 'bg-emerald-500' : 'bg-brand-500'}`}
-                                    />
-                                </div>
-                            </div>
-                        )}
 
                         {/* Body: Items Loop */}
                         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50">
@@ -198,7 +172,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                                     </div>
                                     <div className="flex items-center justify-between text-slate-500 text-sm">
                                         <span>Phí vận chuyển:</span>
-                                        <span className="font-medium text-emerald-500">{progress === 100 ? 'Miễn phí' : 'Tính khi thanh toán'}</span>
+                                        <span className="font-medium text-slate-700">Tính khi thanh toán</span>
                                     </div>
                                     <div className="h-px bg-slate-100 my-2" />
                                     <div className="flex items-center justify-between">

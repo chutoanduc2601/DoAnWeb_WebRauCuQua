@@ -102,7 +102,7 @@ const STORIES = [
     title1: 'Công nghệ bảo quản',
     title2: 'Lưu giữ độ giòn tan',
     description: 'Chúng tôi đầu tư vào hệ thống kho lạnh và vận chuyển khép kín để đảm bảo rau quả được đưa vào "trạng thái ngủ đông" ngay sau khi thu hoạch. Điều này giúp giữ nguyên cấu trúc tế bào và độ tươi mới như vừa hái tại cành.',
-    img: 'https://file.hstatic.net/200000721249/article/cach_bao_quan_thuc_pham_ngon_86e6a2cbfaae4bb798cd494868d822c8_1024x1024.png',
+    img: 'https://nongnghiephuuco.vn/stores/news_dataimages/2025/122025/25/20/content20251225205010.jpg?rt=20251225205012',
     features: [
       {
         icon: 'fa-truck-fast',
