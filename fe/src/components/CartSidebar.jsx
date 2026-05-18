@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+// Icons from Font Awesome CDN
 
 const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, onCheckout }) => {
     // Tính tổng tiền
     const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
 
     return (
         <AnimatePresence>
@@ -15,7 +16,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+                        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm cursor-pointer"
                         onClick={onClose}
                     />
 
@@ -24,73 +25,96 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                         initial={{ x: "100%" }}
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
-                        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                        transition={{ type: "spring", damping: 30, stiffness: 300 }}
                         className="relative w-full sm:max-w-md h-full bg-white shadow-2xl flex flex-col z-10"
                     >
                         {/* Header */}
-                        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100 flex items-center justify-between bg-white text-slate-800">
-                            <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2">
-                                <ShoppingBag size={20} className="text-brand-600 sm:w-6 sm:h-6" />
-                                Giỏ Hàng
-                            </h2>
+                        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-white text-slate-800">
+                            <div>
+                                <h2 className="text-xl font-bold flex items-center gap-2">
+                                    <i className="fa-solid fa-shopping-basket text-brand-600 text-2xl"></i>
+                                    Giỏ Hàng
+                                </h2>
+                                <p className="text-xs text-slate-400 mt-0.5">{cartItems.length} sản phẩm trong giỏ</p>
+                            </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                                className="p-2.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-all hover:rotate-90"
                             >
-                                <X size={20} />
+                                <i className="fa-solid fa-xmark text-lg"></i>
                             </button>
                         </div>
 
+
                         {/* Body: Items Loop */}
-                        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50">
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50">
                             {cartItems.length === 0 ? (
-                                <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4">
-                                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-full flex items-center justify-center">
-                                        <ShoppingBag size={32} className="text-slate-300 sm:w-10 sm:h-10" />
+                                <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-6">
+                                    <motion.div 
+                                        initial={{ scale: 0.5, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        className="w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-full flex items-center justify-center shadow-inner"
+                                    >
+                                        <i className="fa-solid fa-shopping-cart text-4xl text-slate-200"></i>
+                                    </motion.div>
+                                    <div className="text-center">
+                                        <p className="text-lg font-bold text-slate-600">Giỏ hàng trống trơn</p>
+                                        <p className="text-sm text-slate-400 mt-1">Đừng bỏ lỡ các ưu đãi rau quả sạch hôm nay!</p>
                                     </div>
-                                    <p className="text-base sm:text-lg font-medium">Giỏ hàng của bạn đang trống</p>
-                                    <button onClick={onClose} className="text-brand-600 hover:text-brand-700 font-bold transition-colors text-sm sm:text-base">
-                                        Tiếp tục mua sắm
+                                    <button 
+                                        onClick={onClose} 
+                                        className="px-8 py-3 bg-white text-brand-600 border-2 border-brand-600 rounded-xl font-bold hover:bg-brand-600 hover:text-white transition-all duration-300 shadow-sm"
+                                    >
+                                        Khám phá cửa hàng
                                     </button>
                                 </div>
                             ) : (
-                                <div className="space-y-3 sm:space-y-4">
-                                    <AnimatePresence>
+                                <div className="space-y-4">
+                                    <AnimatePresence mode="popLayout">
                                         {cartItems.map(item => (
                                             <motion.div
                                                 key={item.id}
                                                 layout
-                                                initial={{ opacity: 0, scale: 0.95 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                                                className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 sm:gap-4"
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                                                className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group"
                                             >
                                                 {/* Thumbnail */}
-                                                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg sm:rounded-xl overflow-hidden bg-slate-100 shrink-0">
-                                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-50 shrink-0 border border-slate-50">
+                                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                                 </div>
 
                                                 {/* Info */}
                                                 <div className="flex-1 min-w-0">
-                                                    <h3 className="font-bold text-sm sm:text-base text-slate-800 line-clamp-1">{item.name}</h3>
-                                                    <div className="text-brand-600 font-bold text-xs sm:text-sm mt-0.5 sm:mt-1">
+                                                    <div className="flex justify-between items-start">
+                                                        <h3 className="font-bold text-slate-800 line-clamp-1">{item.name}</h3>
+                                                        <button
+                                                            onClick={() => onRemove(item.id)}
+                                                            className="text-slate-300 hover:text-red-500 transition-colors p-1"
+                                                        >
+                                                            <i className="fa-solid fa-trash-can text-sm"></i>
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <div className="text-brand-600 font-extrabold text-sm mt-1">
                                                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
                                                     </div>
 
-                                                    <div className="flex items-center justify-between mt-2 sm:mt-3">
+                                                    <div className="flex items-center justify-between mt-3">
                                                         {/* Quantity Controls */}
-                                                        <div className="flex items-center bg-slate-100 rounded-lg p-0.5 sm:p-1 gap-1 sm:gap-2">
+                                                        <div className="flex items-center bg-slate-50 rounded-xl p-1 border border-slate-100 gap-1">
                                                             <button
                                                                 onClick={() => {
                                                                     const step = item.unit === 'kg' ? 0.1 : 1;
                                                                     const newVal = Math.max(step, item.quantity - step);
                                                                     onUpdateQuantity(item.id, Number(newVal.toFixed(3)));
                                                                 }}
-                                                                className="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-50 text-slate-600 shadow-sm transition-colors"
+                                                                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white hover:bg-slate-100 text-slate-600 shadow-sm transition-colors border border-slate-100"
                                                             >
-                                                                <Minus size={12} className="sm:w-[14px] sm:h-[14px]" />
+                                                                <i className="fa-solid fa-minus text-[10px]"></i>
                                                             </button>
-                                                            <div className="flex items-center">
+                                                            <div className="flex items-center px-1">
                                                                 <input
                                                                     type="number"
                                                                     min={item.unit === 'kg' ? 0.1 : 1}
@@ -107,9 +131,9 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                                                                             }
                                                                         }
                                                                     }}
-                                                                    className="w-12 sm:w-14 bg-transparent text-center font-bold text-xs sm:text-sm text-slate-700 focus:outline-none"
+                                                                    className="w-12 bg-transparent text-center font-bold text-sm text-slate-700 focus:outline-none"
                                                                 />
-                                                                <span className="text-[10px] sm:text-xs text-slate-500 font-medium pr-1">{item.unit}</span>
+                                                                <span className="text-[10px] text-slate-400 font-medium uppercase">{item.unit}</span>
                                                             </div>
                                                             <button
                                                                 onClick={() => {
@@ -117,19 +141,18 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
                                                                     const newVal = item.quantity + step;
                                                                     onUpdateQuantity(item.id, Number(newVal.toFixed(3)));
                                                                 }}
-                                                                className="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-50 text-slate-600 shadow-sm transition-colors"
+                                                                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white hover:bg-slate-100 text-slate-600 shadow-sm transition-colors border border-slate-100"
                                                             >
-                                                                <Plus size={12} className="sm:w-[14px] sm:h-[14px]" />
+                                                                <i className="fa-solid fa-plus text-[10px]"></i>
                                                             </button>
                                                         </div>
 
-                                                        {/* Remove */}
-                                                        <button
-                                                            onClick={() => onRemove(item.id)}
-                                                            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                                                        >
-                                                            <Trash2 size={14} className="sm:w-4 sm:h-4" />
-                                                        </button>
+                                                        <div className="text-right">
+                                                            <p className="text-[10px] text-slate-400 font-medium">Thành tiền</p>
+                                                            <p className="font-bold text-slate-800 text-sm">
+                                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price * item.quantity)}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </motion.div>
@@ -141,18 +164,36 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemove, o
 
                         {/* Footer: Summary & Checkout */}
                         {cartItems.length > 0 && (
-                            <div className="border-t border-slate-100 p-4 sm:p-6 bg-white shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
-                                <div className="flex items-center justify-between mb-3 sm:mb-4">
-                                    <span className="text-slate-500 font-medium text-sm sm:text-base">Tạm tính:</span>
-                                    <span className="text-xl sm:text-2xl font-extrabold text-slate-900">
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalPrice)}
-                  </span>
+                            <div className="border-t border-slate-100 p-6 bg-white shrink-0 shadow-[0_-20px_25px_-5px_rgba(0,0,0,0.05)]">
+                                <div className="space-y-3 mb-6">
+                                    <div className="flex items-center justify-between text-slate-500 text-sm">
+                                        <span>Tạm tính:</span>
+                                        <span className="font-medium text-slate-700">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalPrice)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-slate-500 text-sm">
+                                        <span>Phí vận chuyển:</span>
+                                        <span className="font-medium text-slate-700">Tính khi thanh toán</span>
+                                    </div>
+                                    <div className="h-px bg-slate-100 my-2" />
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-slate-800 font-bold">Tổng cộng:</span>
+                                        <div className="text-right">
+                                            <span className="text-2xl font-black text-brand-600 block leading-tight">
+                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalPrice)}
+                                            </span>
+                                            <span className="text-[10px] text-slate-400 font-medium">Đã bao gồm thuế VAT</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <button
                                     onClick={() => { onClose(); onCheckout?.(); }}
-                                    className="w-full py-3.5 sm:py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-base sm:text-lg transition-all shadow-lg shadow-brand-500/30 hover:-translate-y-1 active:scale-[0.98]">
-                                    Thanh Toán Ngay
+                                    className="group w-full py-4 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-brand-500/25 hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-2">
+                                    Tiến Hành Thanh Toán
+                                    <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                                 </button>
+                                <p className="text-center text-[11px] text-slate-400 mt-4">
+                                    Cam kết rau củ sạch 100% - Đổi trả trong 24h
+                                </p>
                             </div>
                         )}
                     </motion.div>

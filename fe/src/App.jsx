@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
@@ -23,22 +24,42 @@ function UserApp() {
   const navigate = useNavigate();
   const { user, profile, signOut, isAdmin, isAuthenticated, loading } = useAuth();
 
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem('farmily_cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [view, setView] = useState('home');
 
+  // Lưu giỏ hàng vào localStorage khi có thay đổi
+  useEffect(() => {
+    localStorage.setItem('farmily_cart', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+
   const handleAddToCart = (product) => {
     const qtyToAdd = product.quantity || 1;
     setCartItems(prev => {
-      const existingProduct = prev.find(item => item.id === product.id);
-      if (existingProduct) {
-        return prev.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + qtyToAdd } : item
-        );
+      const existing = prev.find(i => i.id === product.id);
+      let newCart;
+      if (existing) {
+        newCart = prev.map(i => i.id === product.id ? { ...i, quantity: i.quantity + (product.quantity || 1) } : i);
+      } else {
+        newCart = [...prev, { ...product, quantity: product.quantity || 1 }];
       }
-      return [...prev, { ...product, quantity: qtyToAdd }];
+      toast.success(`Đã thêm ${product.name} vào giỏ hàng!`, {
+        icon: '🛒',
+        style: {
+          borderRadius: '16px',
+          background: '#334155',
+          color: '#fff',
+          fontWeight: '600'
+        }
+      });
+      return newCart;
     });
     setIsCartOpen(true);
   };
@@ -51,7 +72,14 @@ function UserApp() {
   };
 
   const handleRemoveFromCart = (productId) => {
+    const item = cartItems.find(i => i.id === productId);
     setCartItems(prev => prev.filter(item => item.id !== productId));
+    if (item) {
+      toast.error(`Đã xóa ${item.name} khỏi giỏ hàng`, {
+        icon: '🗑️',
+        style: { borderRadius: '12px', background: '#EF4444', color: '#fff' }
+      });
+    }
   };
 
   const totalCartItemsCount = cartItems.length;
@@ -85,6 +113,7 @@ function UserApp() {
 
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-brand-500 selection:text-white">
+      <Toaster position="bottom-right" />
       <AnimatePresence mode="wait">
         {view === 'home' && (
           <motion.div
@@ -169,6 +198,11 @@ function UserApp() {
               }}
               onSuccess={() => {
                 setCartItems([]);
+                toast.success('Đặt hàng thành công! Cảm ơn bạn đã tin dùng Farmily.', {
+                  duration: 5000,
+                  icon: '🎉',
+                  style: { borderRadius: '16px', background: '#064E3B', color: '#fff' }
+                });
                 setTimeout(() => {
                    setView('home');
                 }, 3000); // Wait for modal visibility

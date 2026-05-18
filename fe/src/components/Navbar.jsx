@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Search, Leaf, User, Menu, X, Shield, ShoppingBag } from 'lucide-react';
+// Icons from Font Awesome CDN
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -56,7 +56,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
             
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 cursor-pointer text-brand-600 hover:opacity-80 transition-opacity">
-              <Leaf size={24} className="text-brand-600 sm:w-7 sm:h-7" />
+              <i className="fa-solid fa-leaf text-brand-600 text-xl sm:text-2xl"></i>
               <span className="font-bold text-lg sm:text-xl tracking-tight">Farmily</span>
             </Link>
 
@@ -80,7 +80,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
             {/* Actions */}
             <div className="flex items-center gap-1 sm:gap-2 md:gap-4 text-slate-700">
               <button className="p-2 hover:bg-slate-100 rounded-full transition-colors hidden sm:block">
-                <Search size={20} className="sm:w-[22px] sm:h-[22px]" />
+                <i className="fa-solid fa-magnifying-glass text-lg"></i>
               </button>
 
               {user ? (
@@ -91,7 +91,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs sm:text-sm font-semibold cursor-pointer"
                       title="Trang Admin"
                     >
-                      <Shield size={16} />
+                      <i className="fa-solid fa-shield-halved text-sm"></i>
                       <span className="hidden sm:inline">Admin</span>
                     </Link>
                   )}
@@ -106,14 +106,14 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
                         onClick={onOpenProfile}
                         className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2"
                       >
-                        <User size={16} className="text-brand-500" />
+                        <i className="fa-solid fa-user-circle text-brand-500"></i>
                         Thông tin cá nhân
                       </button>
                       <button 
                         onClick={onOpenHistory}
                         className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2"
                       >
-                        <ShoppingBag size={16} className="text-emerald-500" />
+                        <i className="fa-solid fa-shopping-bag text-emerald-500"></i>
                         Lịch sử mua hàng
                       </button>
                       <div className="h-px bg-slate-100 mx-3 my-1" />
@@ -132,7 +132,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
                   className="p-2 hover:bg-slate-100 rounded-full transition-colors"
                   title="Đăng Nhập"
                 >
-                  <User size={20} className="sm:w-[22px] sm:h-[22px]" />
+                  <i className="fa-solid fa-user text-lg sm:text-xl"></i>
                 </button>
               )}
 
@@ -141,7 +141,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
                 className="p-2 hover:bg-slate-100 rounded-full transition-colors relative ml-0.5 sm:ml-1"
                 title="Mở Giỏ Hàng"
               >
-                <ShoppingCart size={20} className="sm:w-[22px] sm:h-[22px]" />
+                <i className="fa-solid fa-cart-shopping text-lg sm:text-xl"></i>
                 {cartItemCount > 0 && (
                   <motion.span 
                     initial={{ scale: 0 }}
@@ -161,7 +161,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
                 className="p-2 hover:bg-slate-100 rounded-full transition-colors md:hidden ml-0.5"
                 title="Menu"
               >
-                <Menu size={22} />
+                <i className="fa-solid fa-bars text-xl"></i>
               </button>
             </div>
           </div>
@@ -191,14 +191,14 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
               {/* Menu Header */}
               <div className="flex items-center justify-between p-5 border-b border-slate-100">
                 <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-brand-600 hover:opacity-80 transition-opacity">
-                  <Leaf size={24} />
+                  <i className="fa-solid fa-leaf text-2xl"></i>
                   <span className="font-bold text-lg">Farmily</span>
                 </Link>
                 <button 
                   onClick={() => setMobileMenuOpen(false)}
                   className="p-2 hover:bg-slate-100 rounded-full transition-colors"
                 >
-                  <X size={20} />
+                  <i className="fa-solid fa-xmark text-xl"></i>
                 </button>
               </div>
 
@@ -235,7 +235,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
                 {/* Search in mobile */}
                 <div className="mt-6 pt-6 border-t border-slate-100">
                   <button className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 transition-colors">
-                    <Search size={18} />
+                    <i className="fa-solid fa-magnifying-glass text-lg"></i>
                     <span className="font-medium">Tìm kiếm</span>
                   </button>
                 </div>
@@ -258,14 +258,14 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
                       onClick={() => { onOpenProfile(); setMobileMenuOpen(false); }}
                       className="w-full flex items-center justify-center gap-2 py-2.5 text-sm text-slate-700 font-semibold bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors mb-2"
                     >
-                      <User size={16} className="text-brand-500" /> Thông tin cá nhân
+                      <i className="fa-solid fa-user-circle text-brand-500"></i> Thông tin cá nhân
                     </button>
 
                     <button 
                       onClick={() => { onOpenHistory(); setMobileMenuOpen(false); }}
                       className="w-full flex items-center justify-center gap-2 py-2.5 text-sm text-slate-700 font-semibold bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
                     >
-                      <ShoppingBag size={16} /> Lịch sử mua hàng
+                      <i className="fa-solid fa-shopping-bag text-emerald-500"></i> Lịch sử mua hàng
                     </button>
                     <button 
                       onClick={() => { onLogout(); setMobileMenuOpen(false); }}
