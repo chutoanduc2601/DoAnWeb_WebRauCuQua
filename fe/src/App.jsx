@@ -164,6 +164,7 @@ function UserApp() {
               isOpen={!!selectedProduct}
               onClose={closeProductDetail}
               onAddToCart={handleAddToCart}
+              onProductClick={handleProductClick}
             />
 
             <AuthModal
