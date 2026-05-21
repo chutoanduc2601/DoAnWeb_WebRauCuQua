@@ -197,16 +197,18 @@ function UserApp() {
                 setView('home');
                 setIsCartOpen(true);
               }}
-              onSuccess={() => {
+              onSuccess={(action) => {
                 setCartItems([]);
                 toast.success('Đặt hàng thành công! Cảm ơn bạn đã tin dùng Farmily.', {
                   duration: 5000,
                   icon: '🎉',
                   style: { borderRadius: '16px', background: '#064E3B', color: '#fff' }
                 });
-                setTimeout(() => {
-                   setView('home');
-                }, 3000); // Wait for modal visibility
+                if (action === 'track') {
+                  setView('history');
+                } else {
+                  setView('home');
+                }
               }}
             />
           </motion.div>

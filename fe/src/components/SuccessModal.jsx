@@ -8,7 +8,7 @@ const makeOrderId = () => {
   return `#FG-${num}`;
 };
 
-const SuccessModal = ({ isOpen, cartItems = [], orderCode }) => {
+const SuccessModal = ({ isOpen, cartItems = [], orderCode, onContinue, onTrack }) => {
   const [step, setStep] = useState(0); // 0 = animating, 1 = content visible
 
   useEffect(() => {
@@ -20,11 +20,13 @@ const SuccessModal = ({ isOpen, cartItems = [], orderCode }) => {
   }, [isOpen]);
 
   const handleContinue = () => {
-    window.location.reload(); // simplest way to go back to shop
+    if (onContinue) onContinue();
+    else window.location.reload(); // fallback
   };
 
   const handleTrack = () => {
-    alert(`Đơn hàng ${orderCode} đang được chuẩn bị. Tính năng theo dõi sẽ ra mắt sớm! 🚚`);
+    if (onTrack) onTrack();
+    else alert(`Đơn hàng ${orderCode} đang được chuẩn bị. Tính năng theo dõi sẽ ra mắt sớm! 🚚`); // fallback
   };
 
   return (
@@ -188,7 +190,7 @@ const SuccessModal = ({ isOpen, cartItems = [], orderCode }) => {
 
                     {/* Footer tag */}
                     <p className="mt-4 sm:mt-6 text-[10px] sm:text-xs text-slate-400 font-mono">
-                      Built by Duc @UIT 🌿
+                      Built by Duc Bao - Nong Lam University 🌿
                     </p>
                   </motion.div>
                 )}
