@@ -23,7 +23,7 @@ const mockSales = [
   }
 ];
 
-const API_URL = 'http://localhost:8080';
+const API_URL = 'http://localhost:8082';
 
 const SalesNotification = () => {
   const [isVisible, setIsVisible] = useState(false);

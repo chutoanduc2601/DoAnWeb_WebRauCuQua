@@ -21,7 +21,7 @@ export default function Reports() {
 
   const formatVND = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 
-  if (loading) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div></div>;
+  if (loading || !summary) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div></div>;
 
   const orderData = [
     { name: 'Thành công', value: summary.completedOrders, color: '#10b981' },

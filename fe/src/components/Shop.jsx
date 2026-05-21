@@ -45,6 +45,7 @@ const Shop = ({ onAddToCart, onProductClick }) => {
           unit: item.unit,
           image: item.imageUrl,
           categories: [item.category?.name].filter(Boolean),
+          categoryId: item.category?.id,
           badge: item.badge,
           tags: item.tags || []
         }));
