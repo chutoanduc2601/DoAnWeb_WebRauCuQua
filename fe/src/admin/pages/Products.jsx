@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config';
 import { Plus, Search, Edit, Trash2, Package, Image as ImageIcon } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
@@ -7,7 +8,7 @@ import StatusBadge from '../components/StatusBadge';
 import { formatCurrency } from '../data/adminMockData';
 
 const ITEMS_PER_PAGE = 10;
-const API_URL = 'http://localhost:8082/api/products';
+const API_URL = `${API_BASE_URL}/api/products`;
 
 export default function Products() {
   const [dbProducts, setDbProducts] = useState([]);
@@ -46,10 +47,9 @@ export default function Products() {
       setDbProducts([]);
     }
   };
-
   const fetchCategories = async () => {
     try {
-      const res = await fetch('http://localhost:8082/api/categories');
+      const res = await fetch(`${API_BASE_URL}/api/categories`);
       const data = await res.json();
       setCategories(Array.isArray(data) ? data : []);
     } catch (error) {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { API_BASE_URL as BASE_URL } from '../../config';
 import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
@@ -6,7 +7,7 @@ import AdminModal from '../components/AdminModal';
 import StatusBadge from '../components/StatusBadge';
 
 const ITEMS_PER_PAGE = 10;
-const API_BASE_URL = 'http://localhost:8082/api/admin/promotions';
+const API_BASE_URL = `${BASE_URL}/api/admin/promotions`;
 
 const formatCurrency = (val) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);

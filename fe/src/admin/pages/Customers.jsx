@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { API_BASE_URL } from '../../config';
 import { Search, Eye, User, RefreshCw } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
@@ -6,7 +7,7 @@ import AdminModal from '../components/AdminModal';
 import { formatCurrency } from '../data/adminMockData';
 
 const ITEMS_PER_PAGE = 10;
-const API_URL = 'http://localhost:8082/api/profiles';
+const API_URL = `${API_BASE_URL}/api/profiles`;
 
 export default function Customers() {
   const [allCustomers, setAllCustomers] = useState([]);

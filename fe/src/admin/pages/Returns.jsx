@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, AlertCircle, RefreshCw, X, Image as ImageIcon, ExternalLink, Check, Ban, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_BASE_URL } from '../../config';
 
 const formatVND = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
 
@@ -41,7 +42,7 @@ export default function Returns() {
       if (statusFilter) params.append('status', statusFilter);
       if (searchTerm) params.append('search', searchTerm);
 
-      const res = await fetch(`http://localhost:8082/api/returns/paged?${params}`);
+      const res = await fetch(`${API_BASE_URL}/api/returns/paged?${params}`);
       if (res.ok) {
         const data = await res.json();
         // Parse imageUrls from JSON string to array
@@ -65,7 +66,7 @@ export default function Returns() {
     if (!window.confirm(`Bạn có chắc muốn chuyển trạng thái thành: ${STATUS_MAP[newStatus].label}?`)) return;
     
     try {
-      const res = await fetch(`http://localhost:8082/api/returns/${id}/status`, {
+      const res = await fetch(`${API_BASE_URL}/api/returns/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus, adminNote: note })

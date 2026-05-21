@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DollarSign, ShoppingBag, Users, Package, ArrowUpRight, ArrowDownRight, Clock, CheckCircle } from 'lucide-react';
 
@@ -13,10 +14,10 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         const [statsRes, chartRes, ordersRes, productsRes] = await Promise.all([
-          fetch('http://localhost:8082/api/admin/dashboard/stats'),
-          fetch('http://localhost:8082/api/admin/dashboard/revenue-chart'),
-          fetch('http://localhost:8082/api/admin/dashboard/recent-orders'),
-          fetch('http://localhost:8082/api/admin/dashboard/top-products')
+          fetch(`${API_BASE_URL}/api/admin/dashboard/stats`),
+          fetch(`${API_BASE_URL}/api/admin/dashboard/revenue-chart`),
+          fetch(`${API_BASE_URL}/api/admin/dashboard/recent-orders`),
+          fetch(`${API_BASE_URL}/api/admin/dashboard/top-products`)
         ]);
         
         setStats(await statsRes.json());

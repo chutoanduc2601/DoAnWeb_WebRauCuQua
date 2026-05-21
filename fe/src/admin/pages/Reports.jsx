@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { FileText, Download, TrendingUp } from 'lucide-react';
 
@@ -7,7 +8,7 @@ export default function Reports() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8082/api/admin/reports/summary')
+    fetch(`${API_BASE_URL}/api/admin/reports/summary`)
       .then(res => res.json())
       .then(data => {
         setSummary(data);
