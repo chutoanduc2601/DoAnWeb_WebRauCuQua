@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Tag, Truck, Layers, Sparkles } from 'lucide-react';
 import PromotionCard from './PromotionCard';
+import { API_BASE_URL } from '../config';
 import PromotionBanner from './PromotionBanner';
 
 const CATEGORIES = [
@@ -24,7 +25,7 @@ const PromotionsUser = ({ onBack }) => {
   const fetchPromotions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8082/api/admin/promotions');
+      const response = await fetch(`${API_BASE_URL}/api/admin/promotions`);
       if (!response.ok) throw new Error('Không thể tải danh sách khuyến mãi');
       const data = await response.json();
       const now = new Date();

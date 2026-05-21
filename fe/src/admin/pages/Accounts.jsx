@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config';
 import { Plus, Edit, Trash2, User, Shield, UserCog, Search, Loader2 } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
 import StatusBadge from '../components/StatusBadge';
 
-const API_URL = 'http://localhost:8082/api/profiles';
+const API_URL = `${API_BASE_URL}/api/profiles`;
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState([]);

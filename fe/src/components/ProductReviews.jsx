@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Star, Send, MessageCircle, User } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
-const API_URL = 'http://localhost:8082';
+const API_URL = API_BASE_URL;
 
 const StarRating = ({ rating, size = 18, interactive = false, onRate }) => {
   const [hovered, setHovered] = useState(0);

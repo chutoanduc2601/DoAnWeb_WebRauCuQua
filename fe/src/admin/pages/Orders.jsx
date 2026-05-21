@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config';
 import { Search, Eye, RefreshCw, CheckCircle } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
@@ -7,7 +8,7 @@ import StatusBadge from '../components/StatusBadge';
 import { formatCurrency } from '../data/adminMockData';
 
 const ITEMS_PER_PAGE = 10;
-const API_URL = 'http://localhost:8082/api/orders';
+const API_URL = `${API_BASE_URL}/api/orders`;
 
 const tabs = [
   { key: 'all', label: 'Tất cả' },

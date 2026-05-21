@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config';
 import { Plus, Edit, Trash2, FolderTree } from 'lucide-react';
 import AdminModal from '../components/AdminModal';
 
-const API_URL = 'http://localhost:8082/api/categories';
+const API_URL = `${API_BASE_URL}/api/categories`;
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);

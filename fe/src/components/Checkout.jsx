@@ -2,10 +2,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, MapPin, Zap, Truck, Wallet, Banknote, Smartphone,
-  Tag, ChevronRight, Leaf, ShieldCheck, Clock, Loader2
+  Tag, ChevronRight, Leaf, ShieldCheck, Clock, Loader2, Sparkles, RotateCcw
 } from 'lucide-react';
 import SuccessModal from './SuccessModal';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../config';
 
 const formatVND = (n) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
@@ -15,7 +16,7 @@ const SHIPPING_OPTIONS = [
     id: 'express',
     label: 'Giao hàng hỏa tốc',
     sub: 'Nhận trong 2 giờ',
-    icon: <Zap size={18} className="text-amber-500" />,
+    icon: <Zap size={18} />,
     fee: 35000,
     badge: 'Nhanh nhất',
   },
@@ -23,7 +24,7 @@ const SHIPPING_OPTIONS = [
     id: 'standard',
     label: 'Giao hàng tiêu chuẩn',
     sub: 'Nhận trong 1–2 ngày',
-    icon: <Truck size={18} className="text-sky-500" />,
+    icon: <Truck size={18} />,
     fee: 15000,
     badge: null,
   },
@@ -34,26 +35,26 @@ const PAYMENT_METHODS = [
     id: 'cod',
     label: 'Tiền mặt (COD)',
     sub: 'Thanh toán khi nhận hàng',
-    icon: <Banknote size={22} className="text-emerald-500" />,
+    icon: <Banknote size={22} />,
   },
   {
     id: 'bank',
     label: 'Chuyển khoản ngân hàng',
     sub: 'Vietcombank · Techcombank · MB',
-    icon: <Wallet size={22} className="text-indigo-500" />,
+    icon: <Wallet size={22} />,
   },
   {
     id: 'ewallet',
     label: 'Ví điện tử',
     sub: 'Momo · VNPAY · ZaloPay',
-    icon: <Smartphone size={22} className="text-rose-500" />,
+    icon: <Smartphone size={22} />,
   },
 ];
 
 const pageVariants = {
-  hidden: { opacity: 0, x: 60 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
-  exit: { opacity: 0, x: -60, transition: { duration: 0.3 } },
+  hidden: { opacity: 0, x: 30 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] } },
+  exit: { opacity: 0, x: -30, transition: { duration: 0.25 } },
 };
 
 const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
@@ -103,7 +104,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
     setDiscountError('');
     
     try {
-      const response = await fetch(`http://localhost:8082/api/promotions/validate?code=${code}&amount=${subtotal}`);
+      const response = await fetch(`${API_BASE_URL}/api/promotions/validate?code=${code}&amount=${subtotal}`);
       const result = await response.json();
 
       if (response.ok) {
@@ -162,7 +163,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
     };
 
     try {
-      const response = await fetch('http://localhost:8082/api/orders', {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -201,47 +202,52 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-slate-100"
+        className="min-h-screen bg-gradient-to-tr from-[#ECFDF5] via-[#F9FAFB] to-[#EEF2F6] pb-24 font-sans text-slate-700 antialiased"
       >
-        {/* ── Top bar ── */}
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 shadow-sm">
-          <div className="container mx-auto px-3 sm:px-4 md:px-8 py-3 sm:py-4 flex items-center gap-2 sm:gap-4">
+        {/* Header */}
+        <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-emerald-100/50 shadow-sm shadow-emerald-900/5">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <button
               onClick={onBack}
-              className="flex items-center gap-1 sm:gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-medium text-xs sm:text-sm"
+              className="group flex items-center gap-2 text-slate-600 hover:text-emerald-700 transition-colors font-bold text-sm bg-slate-100/80 hover:bg-emerald-50 px-4 py-2 rounded-xl border border-slate-200/50 hover:border-emerald-100"
             >
-              <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px]" /> <span className="hidden xs:inline">Quay lại</span> giỏ hàng
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" /> 
+              Quay lại giỏ hàng
             </button>
-            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-            <div className="hidden sm:flex items-center gap-2 text-slate-800 font-bold text-lg">
-              <Leaf size={20} className="text-emerald-500" />
+            
+            <div className="hidden sm:flex items-center gap-2 text-emerald-800 font-black text-xl tracking-tight">
+              <Leaf size={22} className="text-emerald-500 fill-emerald-100" />
               Farmily
             </div>
-            <div className="ml-auto flex items-center gap-1.5 text-emerald-600 text-[10px] sm:text-xs font-semibold bg-emerald-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-emerald-200">
-              <ShieldCheck size={12} className="sm:w-[14px] sm:h-[14px]" /> <span className="hidden sm:inline">Thanh toán</span> bảo mật
+            
+            <div className="flex items-center gap-1.5 text-emerald-700 text-xs font-bold bg-emerald-50 border border-emerald-100 px-3.5 py-2 rounded-xl shadow-sm">
+              <ShieldCheck size={14} className="text-emerald-600 animate-pulse" /> 
+              Thanh toán an toàn SSL
             </div>
           </div>
         </header>
 
-        <div className="container mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8 md:py-10 max-w-6xl">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2">
-            Thanh Toán
-          </h1>
-          <p className="text-slate-500 mb-6 sm:mb-8 md:mb-10 text-xs sm:text-sm">
-            Kiểm tra thông tin và hoàn tất đơn hàng của bạn
-          </p>
+        <div className="container mx-auto px-4 py-10 max-w-6xl">
+          <div className="mb-8">
+            <h1 className="text-3xl font-black text-slate-800 tracking-tight bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 bg-clip-text text-transparent">
+              Thực Hiện Thanh Toán
+            </h1>
+            <p className="text-slate-500 mt-1.5 text-sm font-semibold">
+              Kiểm tra thông tin giao nhận và hoàn tất đơn hàng xanh của bạn
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_390px] xl:grid-cols-[1fr_430px] gap-8">
 
               {/* ════ COLUMN 1: Shipping & Payment ════ */}
-              <div className="space-y-4 sm:space-y-6">
+              <div className="space-y-6">
 
-                {/* ── Shipping Info ── */}
-                <Section title="Thông Tin Giao Hàng" icon={<MapPin size={18} className="text-emerald-500" />}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                {/* Shipping Info */}
+                <Section title="Thông Tin Giao Hàng" icon={<MapPin size={18} />}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InputField
-                      label="Họ và tên"
+                      label="Họ và tên người nhận"
                       id="fullName"
                       value={form.fullName}
                       onChange={(v) => setForm({ ...form, fullName: v })}
@@ -258,31 +264,31 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                       required
                     />
                   </div>
-                  <div className="mt-3 sm:mt-4 relative">
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
-                      Địa chỉ giao hàng
+                  <div className="mt-4">
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">
+                      Địa chỉ nhận hàng chi tiết
                     </label>
-                    <div className="relative">
+                    <div className="relative flex flex-col sm:flex-row gap-2">
                       <input
                         required
                         value={form.address}
                         onChange={(e) => setForm({ ...form, address: e.target.value })}
                         placeholder="Số nhà, tên đường, phường, quận..."
-                        className="w-full pr-4 sm:pr-36 pl-4 py-3 sm:py-3.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition text-sm"
+                        className="w-full pl-4 pr-4 py-3.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-sm shadow-sm font-medium"
                       />
                       <button
                         type="button"
-                        className="sm:absolute sm:right-2 sm:top-1/2 sm:-translate-y-1/2 mt-2 sm:mt-0 flex items-center gap-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-lg transition-colors w-full sm:w-auto justify-center sm:justify-start"
+                        className="flex items-center gap-1.5 text-xs font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/50 hover:border-emerald-200 px-4 py-3 rounded-xl transition-all shadow-sm shrink-0 justify-center"
                       >
-                        <MapPin size={12} /> Chọn trên bản đồ
+                        <MapPin size={13} /> Định vị GPS
                       </button>
                     </div>
                   </div>
                 </Section>
 
-                {/* ── Shipping Method ── */}
-                <Section title="Phương Thức Vận Chuyển" icon={<Truck size={18} className="text-emerald-500" />}>
-                  <div className="space-y-3">
+                {/* Shipping Method */}
+                <Section title="Phương Thức Vận Chuyển" icon={<Truck size={18} />}>
+                  <div className="space-y-3.5">
                     {SHIPPING_OPTIONS.map((opt) => (
                       <ShippingCard
                         key={opt.id}
@@ -294,9 +300,9 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                   </div>
                 </Section>
 
-                {/* ── Payment Method ── */}
-                <Section title="Phương Thức Thanh Toán" icon={<Wallet size={18} className="text-emerald-500" />}>
-                  <div className="space-y-3">
+                {/* Payment Method */}
+                <Section title="Phương Thức Thanh Toán" icon={<Wallet size={18} />}>
+                  <div className="space-y-3.5">
                     {PAYMENT_METHODS.map((pm) => (
                       <PaymentCard
                         key={pm.id}
@@ -311,36 +317,36 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
 
               {/* ════ COLUMN 2: Order Summary ════ */}
               <div className="lg:sticky lg:top-24 lg:self-start">
-                <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/60 overflow-hidden">
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
 
-                  {/* Header */}
-                  <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100 bg-gradient-to-r from-emerald-500 to-teal-500">
-                    <h2 className="text-white font-bold text-base sm:text-lg">Đơn Hàng Của Bạn</h2>
-                    <p className="text-emerald-100 text-xs mt-0.5">{cartItems.length} sản phẩm</p>
+                  {/* Summary Card Header */}
+                  <div className="px-6 py-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+                    <h2 className="font-extrabold text-base sm:text-lg tracking-tight">Đơn Hàng Của Bạn</h2>
+                    <p className="text-emerald-100 text-xs font-semibold mt-1">Sẵn sàng vận chuyển {cartItems.length} thực phẩm sạch</p>
                   </div>
 
-                  {/* Items */}
-                  <div className="px-4 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4 max-h-52 sm:max-h-64 overflow-y-auto">
+                  {/* Items List */}
+                  <div className="px-6 py-4 space-y-4 max-h-56 sm:max-h-64 overflow-y-auto border-b border-slate-50 no-scrollbar">
                     {cartItems.length === 0 ? (
-                      <p className="text-slate-400 text-sm text-center py-4">Không có sản phẩm nào</p>
+                      <p className="text-slate-400 text-sm text-center py-6 font-semibold">Giỏ hàng rỗng</p>
                     ) : (
                       cartItems.map((item) => (
-                        <div key={item.id} className="flex items-center gap-2 sm:gap-3">
+                        <div key={item.id} className="flex items-center gap-3 py-1">
                           <div className="relative shrink-0">
                             <img
                               src={item.image}
                               alt={item.name}
-                              className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl object-cover border border-slate-100"
+                              className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover border border-slate-100/80 bg-slate-50 shadow-sm"
                             />
-                            <span className="absolute -top-1.5 -right-1.5 bg-emerald-500 text-white text-[9px] sm:text-[10px] font-bold w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center">
+                            <span className="absolute -top-1.5 -right-1.5 bg-emerald-600 text-white text-[9px] font-black w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full flex items-center justify-center border-2 border-white shadow-md">
                               {item.quantity}
                             </span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-slate-800 font-semibold text-xs sm:text-sm line-clamp-1">{item.name}</p>
-                            <p className="text-slate-400 text-[10px] sm:text-xs">{item.unit}</p>
+                            <p className="text-slate-800 font-extrabold text-xs sm:text-sm line-clamp-1 leading-snug">{item.name}</p>
+                            <p className="text-slate-400 text-[10px] sm:text-xs font-semibold mt-0.5">{item.unit}</p>
                           </div>
-                          <div className="text-slate-700 font-bold text-xs sm:text-sm shrink-0">
+                          <div className="text-slate-800 font-black text-xs sm:text-sm shrink-0 pl-1">
                             {formatVND(item.price * item.quantity)}
                           </div>
                         </div>
@@ -348,17 +354,14 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                     )}
                   </div>
 
-                  {/* Divider */}
-                  <div className="mx-4 sm:mx-6 border-t border-dashed border-slate-200" />
-
-                  {/* Discount Code */}
-                  <div className="px-4 sm:px-6 py-3 sm:py-4">
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-                      Mã giảm giá
+                  {/* Discount Code Section */}
+                  <div className="px-6 py-4 bg-slate-50/50 border-b border-slate-50">
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                      Nhập mã giảm giá
                     </label>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
-                        <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <Tag size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
                           value={discountCode}
                           onChange={(e) => {
@@ -366,17 +369,17 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                             setDiscountError('');
                             if (!e.target.value) setAppliedPromotion(null);
                           }}
-                          placeholder="Nhập mã..."
-                          className="w-full pl-8 pr-3 py-2 sm:py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition uppercase placeholder-normal"
+                          placeholder="FARMILY50K..."
+                          className="w-full pl-8.5 pr-3 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition uppercase font-bold placeholder:font-medium text-slate-800"
                         />
                       </div>
                       <button
                         type="button"
                         disabled={isValidating}
                         onClick={handleApplyCode}
-                        className="flex items-center justify-center min-w-[80px] px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors whitespace-nowrap disabled:opacity-70"
+                        className="flex items-center justify-center min-w-[85px] px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold rounded-xl transition-all shadow-sm disabled:opacity-70 whitespace-nowrap"
                       >
-                        {isValidating ? <Loader2 size={16} className="animate-spin" /> : 'Áp dụng'}
+                        {isValidating ? <Loader2 size={14} className="animate-spin" /> : 'Áp dụng'}
                       </button>
                     </div>
                     <AnimatePresence>
@@ -385,9 +388,9 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
-                          className="text-red-500 text-xs mt-1.5"
+                          className="text-rose-500 text-xs mt-2 font-bold flex items-center gap-1"
                         >
-                          {discountError}
+                          ⚠️ {discountError}
                         </motion.p>
                       )}
                       {appliedPromotion && (
@@ -395,89 +398,89 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
-                          className="text-emerald-600 text-xs mt-1.5 font-semibold flex items-center gap-1"
+                          className="text-emerald-700 text-xs mt-2 font-black flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100/50 shadow-sm"
                         >
-                          ✓ {appliedPromotion.name} — Giảm {appliedPromotion.type === 'PERCENT' ? `${appliedPromotion.value}%` : formatVND(appliedPromotion.value)}
+                          ✓ Đã áp dụng: Giảm {appliedPromotion.type === 'PERCENT' ? `${appliedPromotion.value}%` : formatVND(appliedPromotion.value)}
                         </motion.p>
                       )}
                     </AnimatePresence>
                   </div>
 
                   {/* Price Breakdown */}
-                  <div className="px-4 sm:px-6 pb-3 sm:pb-4 space-y-2 sm:space-y-2.5 text-xs sm:text-sm">
-                    <PriceRow label="Tạm tính" value={formatVND(subtotal)} />
+                  <div className="px-6 py-4 space-y-3 text-xs sm:text-sm border-b border-slate-50 font-semibold text-slate-500">
+                    <PriceRow label="Tiền hàng tạm tính" value={formatVND(subtotal)} />
                     <PriceRow
                       label={`Phí vận chuyển (${shipping === 'express' ? 'Hỏa tốc' : 'Tiêu chuẩn'})`}
                       value={formatVND(shippingFee)}
                     />
                     {appliedPromotion && (
                       <PriceRow
-                        label={`Giảm giá (${appliedPromotion.code})`}
+                        label={`Khuyến mãi (${appliedPromotion.code})`}
                         value={`- ${formatVND(discountAmount)}`}
                         highlight
                       />
                     )}
                   </div>
 
-                  <div className="mx-4 sm:mx-6 border-t border-slate-200" />
-
-                  {/* Total */}
-                  <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-                    <span className="text-slate-600 font-semibold text-sm sm:text-base">Tổng cộng</span>
-                    <span className="text-xl sm:text-2xl font-extrabold text-emerald-600">{formatVND(total)}</span>
+                  {/* Total Cost */}
+                  <div className="px-6 py-4 flex items-center justify-between bg-slate-50/20">
+                    <span className="text-slate-800 font-extrabold text-sm sm:text-base">Tổng thanh toán</span>
+                    <span className="text-xl sm:text-2xl font-black text-emerald-700">{formatVND(total)}</span>
                   </div>
 
-                  {/* CTA */}
-                  <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                  {/* CTA Action */}
+                  <div className="px-6 pb-6 pt-3">
                     <motion.button
                       type="submit"
                       disabled={loading || cartItems.length === 0}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className={`w-full py-3.5 sm:py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-sm sm:text-base rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-400/40 transition-all flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      className={`w-full py-3.5 sm:py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm sm:text-base rounded-2xl shadow-lg shadow-emerald-600/15 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       {loading ? (
                         <>
-                          <Loader2 size={20} className="animate-spin" />
-                          Đang xử lý...
+                          <Loader2 size={18} className="animate-spin" />
+                          Đang khởi tạo đơn hàng...
                         </>
                       ) : (
                         <>
-                          Xác Nhận Đặt Hàng <ChevronRight size={16} className="sm:w-[18px] sm:h-[18px]" />
+                          Xác Nhận Đặt Hàng <ChevronRight size={16} />
                         </>
                       )}
                     </motion.button>
                     {error && (
-                      <p className="text-red-500 text-xs mt-2 text-center font-semibold">
+                      <p className="text-rose-600 text-xs mt-3 text-center font-bold bg-rose-50 p-2.5 rounded-xl border border-rose-100">
                         ⚠️ {error}
                       </p>
                     )}
-                    <p className="text-center text-slate-400 text-[10px] sm:text-xs mt-2 sm:mt-3 flex items-center justify-center gap-1">
-                      <ShieldCheck size={11} className="sm:w-3 sm:h-3" /> Giao dịch được mã hoá SSL 256-bit
+                    <p className="text-center text-slate-400 text-[10px] sm:text-xs mt-3.5 flex items-center justify-center gap-1 font-semibold">
+                      <ShieldCheck size={12} className="text-emerald-500 animate-pulse" /> Mã hóa bảo mật SSL 256-bit an toàn tuyệt đối
                     </p>
                   </div>
 
-                  {/* Delivery estimate */}
-                  <div className="mx-4 sm:mx-6 mb-4 sm:mb-6 bg-amber-50 border border-amber-200 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2">
-                    <Clock size={14} className="text-amber-500 shrink-0 sm:w-[15px] sm:h-[15px]" />
-                    <p className="text-amber-700 text-[10px] sm:text-xs font-medium">
+                  {/* Delivery Estimate Notification */}
+                  <div className="mx-6 mb-6 bg-amber-50/80 border border-amber-100 rounded-2xl px-4 py-3 flex items-center gap-2.5">
+                    <Clock size={15} className="text-amber-600 shrink-0 animate-pulse" />
+                    <p className="text-amber-800 text-[10px] sm:text-xs font-bold leading-normal">
                       {shipping === 'express'
-                        ? 'Dự kiến giao ngay hôm nay trước 18:00 '
-                        : 'Dự kiến giao trong 1–2 ngày làm việc '}
+                        ? 'Dự kiến giao hàng hỏa tốc trong 2 giờ tới.'
+                        : 'Dự kiến giao hàng từ 1–2 ngày làm việc.'}
                     </p>
                   </div>
                 </div>
 
-                {/* Trust badges */}
-                <div className="mt-3 sm:mt-4 grid grid-cols-3 gap-2 sm:gap-3 text-center">
+                {/* Trust Badges */}
+                <div className="mt-4 grid grid-cols-3 gap-3 text-center">
                   {[
-                    { icon: '', label: 'Tươi 100%' },
-                    { icon: '', label: 'Hoàn tiền 7 ngày' },
-                    { icon: '', label: 'Giao nhanh 2h' },
-                  ].map((b) => (
-                    <div key={b.label} className="bg-white rounded-lg sm:rounded-xl border border-slate-100 py-2.5 sm:py-3 text-[10px] sm:text-xs text-slate-500 font-medium shadow-sm">
-                      <div className="text-lg sm:text-xl mb-0.5 sm:mb-1">{b.icon}</div>
-                      {b.label}
+                    { icon: <Sparkles size={16} />, label: 'Tươi sạch 100%' },
+                    { icon: <ShieldCheck size={16} />, label: 'Bồi hoàn 7 ngày' },
+                    { icon: <Truck size={16} />, label: 'Giao nhanh 2h' },
+                  ].map((badge, idx) => (
+                    <div key={idx} className="bg-white rounded-2xl border border-slate-100 py-3 px-1 text-[10px] sm:text-xs text-slate-500 font-bold shadow-sm flex flex-col items-center gap-1">
+                      <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                        {badge.icon}
+                      </div>
+                      <span className="leading-tight">{badge.label}</span>
                     </div>
                   ))}
                 </div>
@@ -487,10 +490,10 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
         </div>
 
         {/* Footer */}
-        <footer className="border-t border-slate-200 mt-8 sm:mt-12 py-4 sm:py-6">
-          <div className="container mx-auto px-3 sm:px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 text-xs sm:text-sm text-slate-400">
-            <p>© {new Date().getFullYear()} Farmily. All rights reserved.</p>
-            <div className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-800/5 rounded-full border border-slate-200 font-medium font-mono text-emerald-600">
+        <footer className="border-t border-slate-200/60 mt-12 py-6">
+          <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-400">
+            <p>© {new Date().getFullYear()} Farmily. Tất cả quyền được bảo lưu.</p>
+            <div className="text-xs px-4 py-2 bg-slate-800/5 rounded-full border border-slate-200/50 font-bold font-mono text-emerald-700">
               Built by Duc Bao - Nong Lam University
             </div>
           </div>
@@ -501,6 +504,12 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
         isOpen={showSuccess} 
         cartItems={cartItems} 
         orderCode={orderResult?.orderCode} 
+        onContinue={() => {
+          if (onSuccess) onSuccess('continue');
+        }}
+        onTrack={() => {
+          if (onSuccess) onSuccess('track');
+        }}
       />
     </>
   );
@@ -509,28 +518,30 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
 /* ─── Sub-components ─── */
 
 const Section = ({ title, icon, children }) => (
-  <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-    <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex items-center gap-2">
-      {icon}
-      <h2 className="font-bold text-slate-800 text-sm sm:text-base">{title}</h2>
+  <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+    <div className="px-5 sm:px-6 py-4 border-b border-slate-100/60 bg-slate-50/40 flex items-center gap-2.5">
+      <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+        {icon}
+      </div>
+      <h2 className="font-extrabold text-slate-800 text-sm sm:text-base tracking-tight">{title}</h2>
     </div>
-    <div className="px-4 sm:px-6 py-4 sm:py-5">{children}</div>
+    <div className="px-5 sm:px-6 py-5 sm:py-6">{children}</div>
   </div>
 );
 
 const InputField = ({ label, id, value, onChange, placeholder, type = 'text', required }) => (
-  <div>
-    <label htmlFor={id} className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+  <div className="space-y-1.5">
+    <label htmlFor={id} className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">
       {label}
     </label>
     <input
       id={id}
       type={type}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(v) => onChange(v)}
       placeholder={placeholder}
       required={required}
-      className="w-full px-3 sm:px-4 py-3 sm:py-3.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition text-sm"
+      className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-sm shadow-sm font-medium"
     />
   </div>
 );
@@ -539,32 +550,37 @@ const ShippingCard = ({ option, selected, onSelect }) => (
   <motion.button
     type="button"
     onClick={onSelect}
+    whileHover={{ scale: 1.01 }}
     whileTap={{ scale: 0.99 }}
-    className={`w-full flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 rounded-xl border-2 transition-all text-left ${
+    className={`w-full flex items-center gap-3 sm:gap-4 px-4 py-4 rounded-2xl border-2 transition-all text-left ${
       selected
-        ? 'border-emerald-400 bg-emerald-50/60 shadow-sm shadow-emerald-100'
-        : 'border-slate-200 bg-white hover:border-slate-300'
+        ? 'border-emerald-500 bg-emerald-50/40 shadow-md shadow-emerald-100/50'
+        : 'border-slate-100 bg-white hover:border-emerald-100 hover:bg-emerald-500/[0.01]'
     }`}
   >
-    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 ${selected ? 'bg-emerald-100' : 'bg-slate-100'}`}>
+    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+      selected ? 'bg-emerald-100 text-emerald-700 shadow-sm' : 'bg-slate-50 text-slate-400'
+    }`}>
       {option.icon}
     </div>
     <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-        <span className="font-bold text-slate-800 text-xs sm:text-sm">{option.label}</span>
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="font-extrabold text-slate-800 text-xs sm:text-sm">{option.label}</span>
         {option.badge && (
-          <span className="text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 sm:px-2 py-0.5 rounded-full border border-amber-200">
+          <span className="text-[9px] font-extrabold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md border border-amber-200/50">
             {option.badge}
           </span>
         )}
       </div>
-      <p className="text-slate-400 text-[10px] sm:text-xs mt-0.5">{option.sub}</p>
+      <p className="text-slate-400 text-[10px] sm:text-xs mt-1 font-semibold">{option.sub}</p>
     </div>
-    <div className={`font-bold text-xs sm:text-sm shrink-0 ${selected ? 'text-emerald-600' : 'text-slate-500'}`}>
+    <div className={`font-black text-xs sm:text-sm shrink-0 mr-2 ${selected ? 'text-emerald-700' : 'text-slate-500'}`}>
       {formatVND(option.fee)}
     </div>
-    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${selected ? 'border-emerald-500' : 'border-slate-300'}`}>
-      {selected && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500" />}
+    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${
+      selected ? 'border-emerald-600 bg-emerald-600 shadow-sm' : 'border-slate-200'
+    }`}>
+      {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
     </div>
   </motion.button>
 );
@@ -573,30 +589,35 @@ const PaymentCard = ({ method, selected, onSelect }) => (
   <motion.button
     type="button"
     onClick={onSelect}
+    whileHover={{ scale: 1.01 }}
     whileTap={{ scale: 0.99 }}
-    className={`w-full flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 rounded-xl border-2 transition-all text-left ${
+    className={`w-full flex items-center gap-3 sm:gap-4 px-4 py-4 rounded-2xl border-2 transition-all text-left ${
       selected
-        ? 'border-emerald-400 bg-emerald-50/60 shadow-sm shadow-emerald-100'
-        : 'border-slate-200 bg-white hover:border-slate-300'
+        ? 'border-emerald-500 bg-emerald-50/40 shadow-md shadow-emerald-100/50'
+        : 'border-slate-100 bg-white hover:border-emerald-100 hover:bg-emerald-500/[0.01]'
     }`}
   >
-    <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 ${selected ? 'bg-emerald-50' : 'bg-slate-50'}`}>
+    <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+      selected ? 'bg-emerald-100 text-emerald-700 shadow-sm' : 'bg-slate-50 text-slate-400'
+    }`}>
       {method.icon}
     </div>
     <div className="flex-1 min-w-0">
-      <p className="font-bold text-slate-800 text-xs sm:text-sm">{method.label}</p>
-      <p className="text-slate-400 text-[10px] sm:text-xs mt-0.5">{method.sub}</p>
+      <p className="font-extrabold text-slate-800 text-xs sm:text-sm">{method.label}</p>
+      <p className="text-slate-400 text-[10px] sm:text-xs mt-1 font-semibold">{method.sub}</p>
     </div>
-    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${selected ? 'border-emerald-500' : 'border-slate-300'}`}>
-      {selected && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500" />}
+    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${
+      selected ? 'border-emerald-600 bg-emerald-600 shadow-sm' : 'border-slate-200'
+    }`}>
+      {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
     </div>
   </motion.button>
 );
 
 const PriceRow = ({ label, value, highlight }) => (
   <div className="flex items-center justify-between">
-    <span className={highlight ? 'text-emerald-600 font-semibold' : 'text-slate-500'}>{label}</span>
-    <span className={highlight ? 'text-emerald-600 font-bold' : 'text-slate-700 font-semibold'}>{value}</span>
+    <span className={highlight ? 'text-emerald-700 font-extrabold' : 'text-slate-500 font-semibold'}>{label}</span>
+    <span className={highlight ? 'text-emerald-700 font-black' : 'text-slate-700 font-bold'}>{value}</span>
   </div>
 );
 
