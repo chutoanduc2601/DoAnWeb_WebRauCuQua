@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, CheckCircle2, AlertCircle, Camera, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../config';
 
 const ReturnRequestModal = ({ order, isOpen, onClose, onSuccess }) => {
   const { user } = useAuth();
@@ -102,7 +103,7 @@ const ReturnRequestModal = ({ order, isOpen, onClose, onSuccess }) => {
         }))
       };
 
-      const res = await fetch('http://localhost:8082/api/returns', {
+      const res = await fetch(`${API_BASE_URL}/api/returns`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

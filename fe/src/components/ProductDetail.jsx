@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag, Check } from 'lucide-react';
 import ProductReviews from './ProductReviews';
+import { API_BASE_URL } from '../config';
 
 const ProductDetail = ({ product, isOpen, onClose, onAddToCart, onProductClick }) => {
   const [quantity, setQuantity] = useState(1);
@@ -19,7 +20,7 @@ const ProductDetail = ({ product, isOpen, onClose, onAddToCart, onProductClick }
   useEffect(() => {
     if (product && isOpen) {
       setLoadingRelated(true);
-      let url = 'http://localhost:8082/api/products';
+      let url = `${API_BASE_URL}/api/products`;
       if (product.categoryId) {
         url += `?categoryId=${product.categoryId}`;
       }

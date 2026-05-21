@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const mockSales = [
   { 
@@ -23,7 +24,7 @@ const mockSales = [
   }
 ];
 
-const API_URL = 'http://localhost:8082';
+const API_URL = API_BASE_URL;
 
 const SalesNotification = () => {
   const [isVisible, setIsVisible] = useState(false);

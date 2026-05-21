@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import ProductCard from './ProductCard';
 import { Filter, X, SlidersHorizontal, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_BASE_URL } from '../config';
 
 const Shop = ({ onAddToCart, onProductClick }) => {
   const [activeCategory, setActiveCategory] = useState(null);
@@ -15,7 +16,7 @@ const Shop = ({ onAddToCart, onProductClick }) => {
 
   // Fetch Categories
   useEffect(() => {
-    fetch('http://localhost:8082/api/categories')
+    fetch(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error("Error fetching categories:", err));
@@ -24,7 +25,7 @@ const Shop = ({ onAddToCart, onProductClick }) => {
   // Fetch Products with Search & Filter
   const fetchProducts = useCallback((categoryId, name, min, max) => {
     setLoading(true);
-    let url = 'http://localhost:8082/api/products';
+    let url = `${API_BASE_URL}/api/products`;
     const params = new URLSearchParams();
     if (categoryId) params.append('categoryId', categoryId);
     if (name) params.append('name', name);

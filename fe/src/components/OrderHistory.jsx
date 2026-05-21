@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ReturnRequestModal from './ReturnRequestModal';
+import { API_BASE_URL } from '../config';
 
 const formatVND = (n) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
@@ -50,7 +51,7 @@ const OrderHistory = ({ onBack }) => {
 
   const fetchReturnRequests = async () => {
     try {
-      const response = await fetch(`http://localhost:8082/api/returns/user/${user.id}`);
+      const response = await fetch(`${API_BASE_URL}/api/returns/user/${user.id}`);
       if (response.ok) {
         const data = await response.json();
         const returnsMap = {};
@@ -67,7 +68,7 @@ const OrderHistory = ({ onBack }) => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8082/api/orders/user/${user.id}`);
+      const response = await fetch(`${API_BASE_URL}/api/orders/user/${user.id}`);
       if (response.ok) {
         const data = await response.json();
         setOrders(data);
@@ -82,7 +83,7 @@ const OrderHistory = ({ onBack }) => {
   const fetchTracking = async (orderId) => {
     try {
       setLoadingTracking(true);
-      const response = await fetch(`http://localhost:8082/api/orders/${orderId}/tracking`);
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/tracking`);
       if (response.ok) {
         const data = await response.json();
         console.log(`Tracking data for order ${orderId}:`, data);
