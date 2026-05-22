@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, MapPin, Zap, Truck, Wallet, Banknote, Smartphone,
-  Tag, ChevronRight, Leaf, ShieldCheck, Clock, Loader2, Sparkles, RotateCcw
+  MapPin, Zap, Truck, Wallet, Banknote, Smartphone,
+  Tag, ChevronRight, Leaf, ShieldCheck, Clock, Loader2, Sparkles, RotateCcw,
+  ShoppingBag, CreditCard, Lock, HelpCircle, PhoneCall, Mail, CheckCircle2
 } from 'lucide-react';
 import SuccessModal from './SuccessModal';
 import { useAuth } from '../contexts/AuthContext';
@@ -52,14 +53,14 @@ const PAYMENT_METHODS = [
 ];
 
 const pageVariants = {
-  hidden: { opacity: 0, x: 30 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] } },
-  exit: { opacity: 0, x: -30, transition: { duration: 0.25 } },
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] } },
+  exit: { opacity: 0, y: -30, transition: { duration: 0.25 } },
 };
 
 const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
   const { user, profile } = useAuth();
-  const [form, setForm] = useState({ fullName: '', phone: '', address: '' });
+  const [form, setForm] = useState({ fullName: '', phone: '', address: '', notes: '' });
   const [shipping, setShipping] = useState('standard');
   const [payment, setPayment] = useState('cod');
   const [discountCode, setDiscountCode] = useState('');
@@ -77,7 +78,8 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
       setForm({
         fullName: profile.name || '',
         phone: profile.phone || '',
-        address: profile.address || ''
+        address: profile.address || '',
+        notes: ''
       });
     }
   }, [profile]);
@@ -140,10 +142,12 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
     setLoading(true);
     setError(null);
 
+    const finalAddress = form.notes ? `${form.address} (Ghi chú: ${form.notes})` : form.address;
+
     const orderData = {
       fullName: form.fullName,
       phone: form.phone,
-      address: form.address,
+      address: finalAddress,
       userId: user?.id,
       shippingMethod: shipping,
       paymentMethod: payment,
@@ -202,34 +206,19 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="min-h-screen bg-gradient-to-tr from-[#ECFDF5] via-[#F9FAFB] to-[#EEF2F6] pb-24 font-sans text-slate-700 antialiased"
+        className="min-h-screen bg-gradient-to-tr from-[#ECFDF5] via-[#F9FAFB] to-[#EEF2F6] pt-28 pb-20 px-4 font-sans text-slate-700 antialiased relative overflow-hidden"
       >
-        {/* Header */}
-        <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-emerald-100/50 shadow-sm shadow-emerald-900/5">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <button
-              onClick={onBack}
-              className="group flex items-center gap-2 text-slate-600 hover:text-emerald-700 transition-colors font-bold text-sm bg-slate-100/80 hover:bg-emerald-50 px-4 py-2 rounded-xl border border-slate-200/50 hover:border-emerald-100"
-            >
-              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" /> 
-              Quay lại giỏ hàng
-            </button>
-            
-            <div className="hidden sm:flex items-center gap-2 text-emerald-800 font-black text-xl tracking-tight">
-              <Leaf size={22} className="text-emerald-500 fill-emerald-100" />
-              Farmily
-            </div>
-            
-            <div className="flex items-center gap-1.5 text-emerald-700 text-xs font-bold bg-emerald-50 border border-emerald-100 px-3.5 py-2 rounded-xl shadow-sm">
-              <ShieldCheck size={14} className="text-emerald-600 animate-pulse" /> 
-              Thanh toán an toàn SSL
-            </div>
-          </div>
-        </header>
+        {/* Background Decor */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-100/40 rounded-full blur-[120px] -z-10 translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-sky-100/30 rounded-full blur-[100px] -z-10 -translate-x-1/2 translate-y-1/2" />
 
-        <div className="container mx-auto px-4 py-10 max-w-6xl">
+        <div className="container mx-auto px-4 max-w-6xl">
+          
+
+          {/* Page Title */}
           <div className="mb-8">
-            <h1 className="text-3xl font-black text-slate-800 tracking-tight bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-black text-slate-800 tracking-tight bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 bg-clip-text text-transparent flex items-center gap-2.5">
+              <ShoppingBag className="text-emerald-600 fill-emerald-50 shrink-0" size={28} />
               Thực Hiện Thanh Toán
             </h1>
             <p className="text-slate-500 mt-1.5 text-sm font-semibold">
@@ -284,6 +273,20 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                       </button>
                     </div>
                   </div>
+
+                  {/* Order Notes */}
+                  <div className="mt-4">
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">
+                      Ghi chú giao hàng (Tùy chọn)
+                    </label>
+                    <textarea
+                      value={form.notes}
+                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                      placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi đến 10 phút, đặt ở tủ bảo vệ..."
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-sm shadow-sm font-medium resize-none"
+                    />
+                  </div>
                 </Section>
 
                 {/* Shipping Method */}
@@ -315,13 +318,19 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                 </Section>
               </div>
 
-              {/* ════ COLUMN 2: Order Summary ════ */}
-              <div className="lg:sticky lg:top-24 lg:self-start">
-                <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
-
+              {/* ════ COLUMN 2: Order Summary & Reassurance ════ */}
+              <div className="lg:sticky lg:top-24 lg:self-start space-y-6">
+                
+                {/* Summary receipt card */}
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden relative">
+                  
                   {/* Summary Card Header */}
-                  <div className="px-6 py-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
-                    <h2 className="font-extrabold text-base sm:text-lg tracking-tight">Đơn Hàng Của Bạn</h2>
+                  <div className="px-6 py-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white relative">
+                    <Leaf size={120} className="absolute right-0 bottom-0 text-white/5 pointer-events-none transform translate-x-6 translate-y-6" />
+                    <h2 className="font-extrabold text-base sm:text-lg tracking-tight flex items-center gap-2">
+                      <ShoppingBag size={18} />
+                      Đơn Hàng Của Bạn
+                    </h2>
                     <p className="text-emerald-100 text-xs font-semibold mt-1">Sẵn sàng vận chuyển {cartItems.length} thực phẩm sạch</p>
                   </div>
 
@@ -454,7 +463,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                       </p>
                     )}
                     <p className="text-center text-slate-400 text-[10px] sm:text-xs mt-3.5 flex items-center justify-center gap-1 font-semibold">
-                      <ShieldCheck size={12} className="text-emerald-500 animate-pulse" /> Mã hóa bảo mật SSL 256-bit an toàn tuyệt đối
+                      <Lock size={12} className="text-emerald-500 animate-pulse" /> Mã hóa bảo mật SSL 256-bit an toàn tuyệt đối
                     </p>
                   </div>
 
@@ -469,35 +478,67 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
                   </div>
                 </div>
 
-                {/* Trust Badges */}
-                <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-                  {[
-                    { icon: <Sparkles size={16} />, label: 'Tươi sạch 100%' },
-                    { icon: <ShieldCheck size={16} />, label: 'Bồi hoàn 7 ngày' },
-                    { icon: <Truck size={16} />, label: 'Giao nhanh 2h' },
-                  ].map((badge, idx) => (
-                    <div key={idx} className="bg-white rounded-2xl border border-slate-100 py-3 px-1 text-[10px] sm:text-xs text-slate-500 font-bold shadow-sm flex flex-col items-center gap-1">
-                      <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
-                        {badge.icon}
-                      </div>
-                      <span className="leading-tight">{badge.label}</span>
-                    </div>
-                  ))}
+                {/* Trust Badges - Visa, Mastercard, JCB, VietQR */}
+                <div className="bg-white/70 backdrop-blur-md border border-slate-200/50 p-5 rounded-[2rem] shadow-sm space-y-4">
+                  <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <ShieldCheck size={16} className="text-emerald-600" /> Cam kết bảo mật & An toàn
+                  </h4>
+                  
+                  <div className="flex items-center justify-center gap-4 py-1 flex-wrap opacity-80">
+                    <div className="px-3 py-1 bg-slate-100 rounded-lg text-[10px] font-black text-slate-500 border border-slate-200/40">VISA</div>
+                    <div className="px-3 py-1 bg-slate-100 rounded-lg text-[10px] font-black text-slate-500 border border-slate-200/40">MASTERCARD</div>
+                    <div className="px-3 py-1 bg-slate-100 rounded-lg text-[10px] font-black text-slate-500 border border-slate-200/40">JCB</div>
+                    <div className="px-3 py-1 bg-slate-100 rounded-lg text-[10px] font-black text-slate-500 border border-slate-200/40">VIETQR</div>
+                  </div>
+
+                  <p className="text-[11px] font-semibold text-slate-400 text-center leading-normal">
+                    Thông tin thanh toán được mã hóa và bảo vệ bởi các tiêu chuẩn bảo mật quốc tế cao nhất.
+                  </p>
                 </div>
+
+                {/* Customer Support Grid (Lấp đầy khoảng trống) */}
+                <div className="bg-white/70 backdrop-blur-md border border-slate-200/50 p-5 rounded-[2rem] shadow-sm space-y-4">
+                  <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <HelpCircle size={16} className="text-slate-500" /> Hỗ trợ thanh toán 24/7
+                  </h4>
+
+                  <div className="space-y-3.5 text-xs font-semibold leading-relaxed text-slate-500">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+                        <PhoneCall size={14} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-extrabold uppercase">Hotline khẩn cấp</p>
+                        <p className="text-emerald-700 font-black text-sm">0933 454 194</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+                        <Mail size={14} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-extrabold uppercase">Email liên hệ</p>
+                        <p className="text-slate-700 font-bold">farmily@gmail.com</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+                        <ShieldCheck size={14} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-extrabold uppercase">Chính sách đổi trả</p>
+                        <p className="text-slate-700 font-bold">Đổi trả miễn phí trong 3 ngày nếu sản phẩm lỗi</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </form>
         </div>
-
-        {/* Footer */}
-        <footer className="border-t border-slate-200/60 mt-12 py-6">
-          <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-400">
-            <p>© {new Date().getFullYear()} Farmily. Tất cả quyền được bảo lưu.</p>
-            <div className="text-xs px-4 py-2 bg-slate-800/5 rounded-full border border-slate-200/50 font-bold font-mono text-emerald-700">
-              Built by Duc Bao - Nong Lam University
-            </div>
-          </div>
-        </footer>
       </motion.div>
 
       <SuccessModal 
@@ -518,7 +559,7 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
 /* ─── Sub-components ─── */
 
 const Section = ({ title, icon, children }) => (
-  <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+  <div className="bg-white rounded-3xl border border-slate-100/80 shadow-sm overflow-hidden">
     <div className="px-5 sm:px-6 py-4 border-b border-slate-100/60 bg-slate-50/40 flex items-center gap-2.5">
       <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
         {icon}
@@ -538,7 +579,7 @@ const InputField = ({ label, id, value, onChange, placeholder, type = 'text', re
       id={id}
       type={type}
       value={value}
-      onChange={(v) => onChange(v)}
+      onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       required={required}
       className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-sm shadow-sm font-medium"
