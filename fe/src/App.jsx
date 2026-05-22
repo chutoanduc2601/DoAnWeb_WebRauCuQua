@@ -223,7 +223,27 @@ function UserApp() {
             exit={{ opacity: 0, x: -60 }}
             transition={{ duration: 0.3 }}
           >
+            <Navbar
+              cartItemCount={totalCartItemsCount}
+              onOpenCart={() => setIsCartOpen(true)}
+              user={currentUser}
+              onOpenAuth={() => setIsAuthOpen(true)}
+              onLogout={handleLogout}
+              onOpenHistory={() => setView('history')}
+              onOpenProfile={() => setView('profile')}
+              onOpenPromotions={() => setView('promotions')}
+              onGoHome={() => setView('home')}
+            />
             <OrderHistory onBack={() => setView('home')} />
+            <Footer />
+            <CartSidebar
+              isOpen={isCartOpen}
+              onClose={() => setIsCartOpen(false)}
+              cartItems={cartItems}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRemove={handleRemoveFromCart}
+              onCheckout={handleGoToCheckout}
+            />
           </motion.div>
         )}
 
