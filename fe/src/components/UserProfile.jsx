@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Phone, MapPin, Save, ArrowLeft, Loader2, CheckCircle2, ShieldCheck, Mail, Calendar } from 'lucide-react';
+import { User, Phone, MapPin, Save, Loader2, CheckCircle2, ShieldCheck, Mail, Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-const UserProfile = ({ onBack }) => {
+const UserProfile = () => {
   const { profile, updateProfile } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
@@ -47,16 +47,6 @@ const UserProfile = ({ onBack }) => {
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-sky-100/30 rounded-full blur-[100px] -z-10 -translate-x-1/2 translate-y-1/2" />
 
       <div className="max-w-3xl mx-auto relative z-10">
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={onBack}
-          className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-all mb-8 font-semibold group bg-white/50 backdrop-blur-md px-4 py-2 rounded-full border border-slate-200/50 w-fit"
-        >
-          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> 
-          Quay lại trang chủ
-        </motion.button>
-
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

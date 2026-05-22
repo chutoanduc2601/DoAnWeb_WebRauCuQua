@@ -132,6 +132,7 @@ function UserApp() {
               onOpenHistory={() => setView('history')}
               onOpenProfile={() => setView('profile')}
               onOpenPromotions={() => setView('promotions')}
+              onGoHome={() => setView('home')}
             />
 
             <main>
@@ -243,8 +244,9 @@ function UserApp() {
               onOpenHistory={() => setView('history')}
               onOpenProfile={() => setView('profile')}
               onOpenPromotions={() => setView('promotions')}
+              onGoHome={() => setView('home')}
             />
-            <UserProfile onBack={() => setView('home')} />
+            <UserProfile />
             <Footer />
             <CartSidebar
               isOpen={isCartOpen}
@@ -274,6 +276,7 @@ function UserApp() {
               onOpenHistory={() => setView('history')}
               onOpenProfile={() => setView('profile')}
               onOpenPromotions={() => setView('promotions')}
+              onGoHome={() => setView('home')}
             />
             <PromotionsUser onBack={() => setView('home')} />
             <Footer />
