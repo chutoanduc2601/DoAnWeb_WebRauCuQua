@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenHistory, onOpenProfile, onOpenPromotions }) => {
+const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenHistory, onOpenProfile, onOpenPromotions, onGoHome }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -55,7 +55,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
           <div className={`flex items-center justify-between rounded-2xl px-4 sm:px-6 py-2.5 sm:py-3 transition-all duration-300 ${scrolled ? 'glass' : 'bg-transparent text-slate-800'}`}>
             
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 cursor-pointer text-brand-600 hover:opacity-80 transition-opacity">
+            <Link to="/" onClick={onGoHome} className="flex items-center gap-2 cursor-pointer text-brand-600 hover:opacity-80 transition-opacity">
               <i className="fa-solid fa-leaf text-brand-600 text-xl sm:text-2xl"></i>
               <span className="font-bold text-lg sm:text-xl tracking-tight">Farmily</span>
             </Link>
@@ -72,7 +72,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
                     {link.label}
                   </button>
                 ) : (
-                  <Link key={link.to} to={link.to} className="hover:text-brand-600 transition-colors">{link.label}</Link>
+                  <Link key={link.to} to={link.to} onClick={onGoHome} className="hover:text-brand-600 transition-colors">{link.label}</Link>
                 )
               ))}
             </div>
@@ -190,7 +190,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
             >
               {/* Menu Header */}
               <div className="flex items-center justify-between p-5 border-b border-slate-100">
-                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-brand-600 hover:opacity-80 transition-opacity">
+                <Link to="/" onClick={() => { onGoHome && onGoHome(); setMobileMenuOpen(false); }} className="flex items-center gap-2 text-brand-600 hover:opacity-80 transition-opacity">
                   <i className="fa-solid fa-leaf text-2xl"></i>
                   <span className="font-bold text-lg">Farmily</span>
                 </Link>
@@ -222,7 +222,7 @@ const Navbar = ({ cartItemCount, onOpenCart, onOpenAuth, user, onLogout, onOpenH
                       ) : (
                         <Link 
                           to={link.to} 
-                          onClick={() => setMobileMenuOpen(false)}
+                          onClick={() => { onGoHome && onGoHome(); setMobileMenuOpen(false); }}
                           className="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-brand-50 hover:text-brand-600 transition-colors"
                         >
                           {link.label}
