@@ -56,20 +56,6 @@ const PromotionBanner = ({ onScrollToVouchers, targetDate }) => {
 
       {/* Floating icons */}
       <motion.div
-        animate={{ y: [-6, 6, -6] }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-10 left-[8%] text-white/20"
-      >
-        <Leaf size={40} />
-      </motion.div>
-      <motion.div
-        animate={{ y: [6, -6, 6] }}
-        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-16 right-[10%] text-white/15"
-      >
-        <Zap size={32} />
-      </motion.div>
-      <motion.div
         animate={{ y: [-4, 4, -4] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         className="absolute bottom-10 right-[20%] text-white/10"

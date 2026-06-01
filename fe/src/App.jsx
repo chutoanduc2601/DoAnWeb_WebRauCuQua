@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
@@ -22,6 +22,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function UserApp() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile, signOut, isAdmin, isAuthenticated, loading } = useAuth();
 
   const [cartItems, setCartItems] = useState(() => {
@@ -32,7 +33,6 @@ function UserApp() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [view, setView] = useState('home');
 
   // Lưu giỏ hàng vào localStorage khi có thay đổi
   useEffect(() => {
@@ -93,7 +93,7 @@ function UserApp() {
   };
 
   const handleGoToCheckout = () => {
-    setView('checkout');
+    navigate('/checkout');
   };
 
   const handleLogout = async () => {
@@ -114,225 +114,164 @@ function UserApp() {
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-brand-500 selection:text-white">
       <Toaster position="bottom-right" />
-      <AnimatePresence mode="wait">
-        {view === 'home' && (
-          <motion.div
-            key="home"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.35 }}
-          >
-            <Navbar
-              cartItemCount={totalCartItemsCount}
-              onOpenCart={() => setIsCartOpen(true)}
-              user={currentUser}
-              onOpenAuth={() => setIsAuthOpen(true)}
-              onLogout={handleLogout}
-              onOpenHistory={() => setView('history')}
-              onOpenProfile={() => setView('profile')}
-              onOpenPromotions={() => setView('promotions')}
-              onGoHome={() => setView('home')}
-            />
+      
+      <Navbar
+        cartItemCount={totalCartItemsCount}
+        onOpenCart={() => setIsCartOpen(true)}
+        user={currentUser}
+        onOpenAuth={() => setIsAuthOpen(true)}
+        onLogout={handleLogout}
+        onOpenHistory={() => navigate('/history')}
+        onOpenProfile={() => navigate('/profile')}
+        onOpenPromotions={() => navigate('/promotion')}
+        onGoHome={() => navigate('/home')}
+      />
 
-            <main>
-              <Routes>
-                <Route path="/" element={
-                  <>
-                    <HeroSection />
-                    <StorySection />
-                    <Shop
-                      onAddToCart={handleAddToCart}
-                      onProductClick={handleProductClick}
-                    />
-                  </>
-                } />
-                <Route path="/shop" element={
-                  <div className="pt-24 pb-12">
-                    <Shop
-                      onAddToCart={handleAddToCart}
-                      onProductClick={handleProductClick}
-                    />
-                  </div>
-                } />
-              </Routes>
-            </main>
+      <main>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            
+            <Route path="/home" element={
+              <motion.div
+                key="home"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.35 }}
+              >
+                <HeroSection />
+                <StorySection />
+                <Shop
+                  onAddToCart={handleAddToCart}
+                  onProductClick={handleProductClick}
+                />
+              </motion.div>
+            } />
+            
+            <Route path="/shop" element={
+              <motion.div
+                key="shop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.35 }}
+                className="pt-24 pb-12"
+              >
+                <Shop
+                  onAddToCart={handleAddToCart}
+                  onProductClick={handleProductClick}
+                />
+              </motion.div>
+            } />
+            
+            <Route path="/promotion" element={
+              <motion.div
+                key="promotion"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                <PromotionsUser onBack={() => navigate('/home')} />
+              </motion.div>
+            } />
+            
+            <Route path="/about" element={
+              <motion.div
+                key="about"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.35 }}
+                className="pt-20"
+              >
+                <StorySection />
+              </motion.div>
+            } />
+            
+            <Route path="/checkout" element={
+              <motion.div
+                key="checkout"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Checkout
+                  cartItems={cartItems}
+                  onBack={() => {
+                    navigate('/home');
+                    setIsCartOpen(true);
+                  }}
+                  onSuccess={(action) => {
+                    setCartItems([]);
+                    toast.success('Đặt hàng thành công! Cảm ơn bạn đã tin dùng Farmily.', {
+                      duration: 5000,
+                      icon: '🎉',
+                      style: { borderRadius: '16px', background: '#064E3B', color: '#fff' }
+                    });
+                    if (action === 'track') {
+                      navigate('/history');
+                    } else {
+                      navigate('/home');
+                    }
+                  }}
+                />
+              </motion.div>
+            } />
+            
+            <Route path="/history" element={
+              <motion.div
+                key="history"
+                initial={{ opacity: 0, x: 60 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -60 }}
+                transition={{ duration: 0.3 }}
+              >
+                <OrderHistory onBack={() => navigate('/home')} />
+              </motion.div>
+            } />
+            
+            <Route path="/profile" element={
+              <motion.div
+                key="profile"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.3 }}
+              >
+                <UserProfile />
+              </motion.div>
+            } />
+          </Routes>
+        </AnimatePresence>
+      </main>
 
-            <Footer />
+      <Footer />
 
-            <ProductDetail
-              product={selectedProduct}
-              isOpen={!!selectedProduct}
-              onClose={closeProductDetail}
-              onAddToCart={handleAddToCart}
-              onProductClick={handleProductClick}
-            />
+      <ProductDetail
+        product={selectedProduct}
+        isOpen={!!selectedProduct}
+        onClose={closeProductDetail}
+        onAddToCart={handleAddToCart}
+        onProductClick={handleProductClick}
+      />
 
-            <AuthModal
-              isOpen={isAuthOpen}
-              onClose={() => setIsAuthOpen(false)}
-            />
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
 
-            <CartSidebar
-              isOpen={isCartOpen}
-              onClose={() => setIsCartOpen(false)}
-              cartItems={cartItems}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemove={handleRemoveFromCart}
-              onCheckout={handleGoToCheckout}
-            />
-          </motion.div>
-        )}
+      <CartSidebar
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cartItems={cartItems}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemove={handleRemoveFromCart}
+        onCheckout={handleGoToCheckout}
+      />
 
-        {view === 'checkout' && (
-          <motion.div
-            key="checkout"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Navbar
-              cartItemCount={totalCartItemsCount}
-              onOpenCart={() => setIsCartOpen(true)}
-              user={currentUser}
-              onOpenAuth={() => setIsAuthOpen(true)}
-              onLogout={handleLogout}
-              onOpenHistory={() => setView('history')}
-              onOpenProfile={() => setView('profile')}
-              onOpenPromotions={() => setView('promotions')}
-              onGoHome={() => setView('home')}
-            />
-            <Checkout
-              cartItems={cartItems}
-              onBack={() => {
-                setView('home');
-                setIsCartOpen(true);
-              }}
-              onSuccess={(action) => {
-                setCartItems([]);
-                toast.success('Đặt hàng thành công! Cảm ơn bạn đã tin dùng Farmily.', {
-                  duration: 5000,
-                  icon: '🎉',
-                  style: { borderRadius: '16px', background: '#064E3B', color: '#fff' }
-                });
-                if (action === 'track') {
-                  setView('history');
-                } else {
-                  setView('home');
-                }
-              }}
-            />
-            <Footer />
-            <CartSidebar
-              isOpen={isCartOpen}
-              onClose={() => setIsCartOpen(false)}
-              cartItems={cartItems}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemove={handleRemoveFromCart}
-              onCheckout={handleGoToCheckout}
-            />
-          </motion.div>
-        )}
-
-        {view === 'history' && (
-          <motion.div
-            key="history"
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -60 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Navbar
-              cartItemCount={totalCartItemsCount}
-              onOpenCart={() => setIsCartOpen(true)}
-              user={currentUser}
-              onOpenAuth={() => setIsAuthOpen(true)}
-              onLogout={handleLogout}
-              onOpenHistory={() => setView('history')}
-              onOpenProfile={() => setView('profile')}
-              onOpenPromotions={() => setView('promotions')}
-              onGoHome={() => setView('home')}
-            />
-            <OrderHistory onBack={() => setView('home')} />
-            <Footer />
-            <CartSidebar
-              isOpen={isCartOpen}
-              onClose={() => setIsCartOpen(false)}
-              cartItems={cartItems}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemove={handleRemoveFromCart}
-              onCheckout={handleGoToCheckout}
-            />
-          </motion.div>
-        )}
-
-        {view === 'profile' && (
-          <motion.div
-            key="profile"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Navbar
-              cartItemCount={totalCartItemsCount}
-              onOpenCart={() => setIsCartOpen(true)}
-              user={currentUser}
-              onOpenAuth={() => setIsAuthOpen(true)}
-              onLogout={handleLogout}
-              onOpenHistory={() => setView('history')}
-              onOpenProfile={() => setView('profile')}
-              onOpenPromotions={() => setView('promotions')}
-              onGoHome={() => setView('home')}
-            />
-            <UserProfile />
-            <Footer />
-            <CartSidebar
-              isOpen={isCartOpen}
-              onClose={() => setIsCartOpen(false)}
-              cartItems={cartItems}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemove={handleRemoveFromCart}
-              onCheckout={handleGoToCheckout}
-            />
-          </motion.div>
-        )}
-
-        {view === 'promotions' && (
-          <motion.div
-            key="promotions"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Navbar
-              cartItemCount={totalCartItemsCount}
-              onOpenCart={() => setIsCartOpen(true)}
-              user={currentUser}
-              onOpenAuth={() => setIsAuthOpen(true)}
-              onLogout={handleLogout}
-              onOpenHistory={() => setView('history')}
-              onOpenProfile={() => setView('profile')}
-              onOpenPromotions={() => setView('promotions')}
-              onGoHome={() => setView('home')}
-            />
-            <PromotionsUser onBack={() => setView('home')} />
-            <Footer />
-            <CartSidebar
-              isOpen={isCartOpen}
-              onClose={() => setIsCartOpen(false)}
-              cartItems={cartItems}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemove={handleRemoveFromCart}
-              onCheckout={handleGoToCheckout}
-            />
-          </motion.div>
-        )}
-
-
-      </AnimatePresence>
       <SalesNotification />
       <ChatWidget />
     </div>
