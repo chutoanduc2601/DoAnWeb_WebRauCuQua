@@ -35,6 +35,9 @@ public class Order {
     private LocalDateTime estimatedDeliveryDate;
     private LocalDateTime createdAt;
 
+    @Transient
+    private String paymentUrl;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
 

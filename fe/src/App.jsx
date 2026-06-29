@@ -18,6 +18,7 @@ import PromotionsUser from './components/PromotionsUser';
 import ChatWidget from './components/ChatWidget';
 import AdminLayout from './admin/AdminLayout';
 import ResetPassword from './components/ResetPassword';
+import VNPayCallback from './components/VNPayCallback';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function UserApp() {
@@ -206,6 +207,9 @@ function UserApp() {
                   }}
                   onSuccess={(action) => {
                     setCartItems([]);
+                    if (action === 'redirect') {
+                      return;
+                    }
                     toast.success('Đặt hàng thành công! Cảm ơn bạn đã tin dùng Farmily.', {
                       duration: 5000,
                       icon: '🎉',
@@ -242,6 +246,18 @@ function UserApp() {
                 transition={{ duration: 0.3 }}
               >
                 <UserProfile />
+              </motion.div>
+            } />
+
+            <Route path="/payment/vnpay-callback" element={
+              <motion.div
+                key="vnpay-callback"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <VNPayCallback />
               </motion.div>
             } />
           </Routes>

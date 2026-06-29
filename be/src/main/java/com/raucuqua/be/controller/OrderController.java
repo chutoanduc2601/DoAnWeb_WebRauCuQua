@@ -23,9 +23,16 @@ public class OrderController {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private com.raucuqua.be.service.VNPayService vnPayService;
+
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<Order> createOrder(@RequestBody OrderDTO orderDTO, jakarta.servlet.http.HttpServletRequest request) {
         Order savedOrder = orderService.createOrder(orderDTO);
+        if ("vnpay".equalsIgnoreCase(savedOrder.getPaymentMethod())) {
+            String paymentUrl = vnPayService.createPaymentUrl(savedOrder, request);
+            savedOrder.setPaymentUrl(paymentUrl);
+        }
         return ResponseEntity.ok(savedOrder);
     }
 
