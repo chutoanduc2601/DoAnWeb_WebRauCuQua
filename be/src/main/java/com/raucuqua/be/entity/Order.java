@@ -32,6 +32,13 @@ public class Order {
     private String orderCode;
     private String promotionCode;
     private String status = "PENDING";
+
+    @Column(name = "vnp_txn_ref")
+    private String vnpTxnRef;
+
+    @Column(name = "vnp_transaction_no")
+    private String vnpTransactionNo;
+
     private LocalDateTime estimatedDeliveryDate;
     private LocalDateTime createdAt;
 

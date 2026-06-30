@@ -34,7 +34,8 @@ public class PaymentController {
         String orderCode = request.getParameter("vnp_TxnRef");
         String vnp_ResponseCode = request.getParameter("vnp_ResponseCode");
 
-        Order order = orderRepository.findByOrderCode(orderCode).orElse(null);
+        Order order = orderRepository.findByVnpTxnRef(orderCode)
+                .orElseGet(() -> orderRepository.findByOrderCode(orderCode).orElse(null));
 
         if (order == null) {
             result.put("status", "error");
@@ -42,9 +43,16 @@ public class PaymentController {
             return ResponseEntity.badRequest().body(result);
         }
 
+        // Save VNPay transaction number for reconciliation
+        String vnp_TransactionNo = request.getParameter("vnp_TransactionNo");
+        if (vnp_TransactionNo != null && !vnp_TransactionNo.isEmpty()) {
+            order.setVnpTransactionNo(vnp_TransactionNo);
+            orderRepository.save(order);
+        }
+
         if (paymentStatus == 1) {
             // Update order status to CONFIRMED
-            orderService.updateOrderStatus(order.getId(), "CONFIRMED", "Thanh toán thành công qua VNPAY. Mã GD: " + request.getParameter("vnp_TransactionNo"));
+            orderService.updateOrderStatus(order.getId(), "CONFIRMED", "Thanh toán thành công qua VNPAY. Mã GD: " + vnp_TransactionNo);
             result.put("status", "success");
             result.put("message", "Thanh toán thành công");
             result.put("orderCode", orderCode);

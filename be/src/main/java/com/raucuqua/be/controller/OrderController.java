@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import com.raucuqua.be.repository.OrderRepository;
 import java.util.List;
 
 @RestController
@@ -21,6 +22,9 @@ public class OrderController {
     private OrderService orderService;
 
     @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
     private NotificationService notificationService;
 
     @Autowired
@@ -30,8 +34,14 @@ public class OrderController {
     public ResponseEntity<Order> createOrder(@RequestBody OrderDTO orderDTO, jakarta.servlet.http.HttpServletRequest request) {
         Order savedOrder = orderService.createOrder(orderDTO);
         if ("vnpay".equalsIgnoreCase(savedOrder.getPaymentMethod())) {
+            // Generate timestamp-based vnpTxnRef (yyyyMMddHHmmss + 4 random digits)
+            String timeStamp = new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new java.util.Date());
+            String vnpTxnRef = timeStamp + String.format("%04d", new java.util.Random().nextInt(10000));
+            savedOrder.setVnpTxnRef(vnpTxnRef);
+
             String paymentUrl = vnPayService.createPaymentUrl(savedOrder, request);
             savedOrder.setPaymentUrl(paymentUrl);
+            orderRepository.save(savedOrder);
         }
         return ResponseEntity.ok(savedOrder);
     }

@@ -20,7 +20,9 @@ public class VNPayService {
     public String createPaymentUrl(Order order, HttpServletRequest request) {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
-        String vnp_TxnRef = order.getOrderCode();
+        String vnp_TxnRef = order.getVnpTxnRef() != null && !order.getVnpTxnRef().isEmpty() 
+            ? order.getVnpTxnRef() 
+            : order.getOrderCode();
         String vnp_IpAddr = VNPayConfig.getIpAddress(request);
         String vnp_TmnCode = vnPayConfig.getTmnCode();
 
@@ -62,11 +64,11 @@ public class VNPayService {
                     // Build hash data
                     hashData.append(fieldName);
                     hashData.append('=');
-                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()).replace("+", "%20"));
+                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.name()));
                     // Build query
-                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()).replace("+", "%20"));
+                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.name()));
                     query.append('=');
-                    query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()).replace("+", "%20"));
+                    query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.name()));
                     if (itr.hasNext()) {
                         query.append('&');
                         hashData.append('&');
@@ -85,38 +87,42 @@ public class VNPayService {
 
     public int orderReturn(HttpServletRequest request) {
         Map<String, String> fields = new HashMap<>();
-        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
-            String fieldName = params.nextElement();
-            String fieldValue = request.getParameter(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                fields.put(fieldName, fieldValue);
+        try {
+            for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
+                String fieldName = URLEncoder.encode(params.nextElement(), StandardCharsets.US_ASCII.name());
+                String fieldValue = URLEncoder.encode(request.getParameter(fieldName), StandardCharsets.US_ASCII.name());
+                if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                    fields.put(fieldName, fieldValue);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         String vnp_SecureHash = request.getParameter("vnp_SecureHash");
-        fields.remove("vnp_SecureHashType");
-        fields.remove("vnp_SecureHash");
+        if (fields.containsKey("vnp_SecureHashType")) {
+            fields.remove("vnp_SecureHashType");
+        }
+        if (fields.containsKey("vnp_SecureHash")) {
+            fields.remove("vnp_SecureHash");
+        }
 
         // Sort fields and rebuild hash data
         List<String> fieldNames = new ArrayList<>(fields.keySet());
         Collections.sort(fieldNames);
         StringBuilder hashData = new StringBuilder();
         Iterator<String> itr = fieldNames.iterator();
-        try {
-            while (itr.hasNext()) {
-                String fieldName = itr.next();
-                String fieldValue = fields.get(fieldName);
-                if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                    hashData.append(fieldName);
-                    hashData.append('=');
-                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()).replace("+", "%20"));
-                    if (itr.hasNext()) {
-                        hashData.append('&');
-                    }
+        while (itr.hasNext()) {
+            String fieldName = itr.next();
+            String fieldValue = fields.get(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                hashData.append(fieldName);
+                hashData.append('=');
+                hashData.append(fieldValue);
+                if (itr.hasNext()) {
+                    hashData.append('&');
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         String signValue = VNPayConfig.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
