@@ -45,10 +45,10 @@ const PAYMENT_METHODS = [
     icon: <Wallet size={22} />,
   },
   {
-    id: 'ewallet',
-    label: 'Ví điện tử',
-    sub: 'Momo · VNPAY · ZaloPay',
-    icon: <Smartphone size={22} />,
+    id: 'vnpay',
+    label: 'Thanh toán qua VNPAY',
+    sub: 'Thẻ ATM / Visa / QR Code qua cổng VNPAY Sandbox',
+    icon: <CreditCard size={22} className="text-[#005BAA]" />,
   },
 ];
 
@@ -187,6 +187,12 @@ const Checkout = ({ cartItems = [], onBack, onSuccess }) => {
         isMine: true
       };
       window.dispatchEvent(new CustomEvent('local-new-order', { detail: localOrderData }));
+
+      if (result.paymentUrl) {
+        if (onSuccess) onSuccess('redirect');
+        window.location.href = result.paymentUrl;
+        return;
+      }
 
       setOrderResult(result);
       setShowSuccess(true);

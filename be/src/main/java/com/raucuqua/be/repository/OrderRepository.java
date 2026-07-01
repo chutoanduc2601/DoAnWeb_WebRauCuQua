@@ -14,6 +14,8 @@ import org.springframework.data.repository.query.Param;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserIdOrderByCreatedAtDesc(String userId);
+    java.util.Optional<Order> findByOrderCode(String orderCode);
+    java.util.Optional<Order> findByVnpTxnRef(String vnpTxnRef);
 
     @Query("SELECT o FROM Order o WHERE " +
            "(:search IS NULL OR LOWER(o.orderCode) LIKE LOWER(CONCAT('%', cast(:search as string), '%')) OR LOWER(o.fullName) LIKE LOWER(CONCAT('%', cast(:search as string), '%'))) AND " +
