@@ -40,4 +40,25 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                    "GROUP BY CAST(created_at AS DATE) " +
                    "ORDER BY date DESC LIMIT 7", nativeQuery = true)
     List<Object[]> getRevenueLast7Days();
+
+    @Query(value = "SELECT date_trunc('week', created_at) as week_start, SUM(total) as revenue " +
+                   "FROM orders " +
+                   "WHERE status = 'DELIVERED' " +
+                   "GROUP BY date_trunc('week', created_at) " +
+                   "ORDER BY week_start DESC LIMIT 10", nativeQuery = true)
+    List<Object[]> getRevenueLast10Weeks();
+
+    @Query(value = "SELECT EXTRACT(MONTH FROM created_at) as month, SUM(total) as revenue " +
+                   "FROM orders " +
+                   "WHERE status = 'DELIVERED' AND EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE) " +
+                   "GROUP BY EXTRACT(MONTH FROM created_at) " +
+                   "ORDER BY month ASC", nativeQuery = true)
+    List<Object[]> getRevenueCurrentYearByMonth();
+
+    @Query(value = "SELECT EXTRACT(YEAR FROM created_at) as year, SUM(total) as revenue " +
+                   "FROM orders " +
+                   "WHERE status = 'DELIVERED' " +
+                   "GROUP BY EXTRACT(YEAR FROM created_at) " +
+                   "ORDER BY year ASC", nativeQuery = true)
+    List<Object[]> getRevenueByYear();
 }

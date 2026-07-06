@@ -119,6 +119,33 @@ export default function Accounts() {
     }
   };
 
+  const handleRevoke = async (account) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn thu hồi quyền quản trị của tài khoản ${account.email}? Vai trò sẽ được chuyển về Khách hàng (User).`)) {
+      return;
+    }
+    
+    try {
+      const res = await fetch(`${API_URL}/${account.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...account,
+          role: 'user'
+        })
+      });
+
+      if (res.ok) {
+        fetchAccounts();
+        alert('Đã thu hồi quyền quản trị thành công cho ' + account.email);
+      } else {
+        alert('Lỗi khi thu hồi quyền. Vui lòng thử lại.');
+      }
+    } catch (error) {
+      console.error('Lỗi khi thu hồi quyền:', error);
+      alert('Đã xảy ra lỗi kết nối.');
+    }
+  };
+
   const columns = [
     {
       key: 'name', label: 'Tài khoản',
@@ -177,7 +204,7 @@ export default function Accounts() {
                 <button onClick={() => { setEditAccount(row); setModalOpen(true); }} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 cursor-pointer">
                   <Edit className="w-4 h-4" />
                 </button>
-                <button className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 cursor-pointer">
+                <button onClick={() => handleRevoke(row)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 cursor-pointer" title="Thu hồi quyền">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
