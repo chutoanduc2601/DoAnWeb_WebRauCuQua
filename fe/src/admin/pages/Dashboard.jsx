@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../../config';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DollarSign, ShoppingBag, Users, Package, ArrowUpRight, ArrowDownRight, Clock, CheckCircle } from 'lucide-react';
 
 export default function Dashboard() {
@@ -9,19 +9,19 @@ export default function Dashboard() {
   const [recentOrders, setRecentOrders] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [timeframe, setTimeframe] = useState('day');
+  const [chartLoading, setChartLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, chartRes, ordersRes, productsRes] = await Promise.all([
+        const [statsRes, ordersRes, productsRes] = await Promise.all([
           fetch(`${API_BASE_URL}/api/admin/dashboard/stats`),
-          fetch(`${API_BASE_URL}/api/admin/dashboard/revenue-chart`),
           fetch(`${API_BASE_URL}/api/admin/dashboard/recent-orders`),
           fetch(`${API_BASE_URL}/api/admin/dashboard/top-products`)
         ]);
         
         setStats(await statsRes.json());
-        setChartData(await chartRes.json());
         setRecentOrders(await ordersRes.json());
         setTopProducts(await productsRes.json());
       } catch (error) {
@@ -33,6 +33,27 @@ export default function Dashboard() {
     
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchChartData = async () => {
+      setChartLoading(true);
+      try {
+        let endpoint = 'revenue-chart';
+        if (timeframe === 'week') endpoint = 'revenue-weekly';
+        else if (timeframe === 'month') endpoint = 'revenue-monthly';
+        else if (timeframe === 'year') endpoint = 'revenue-yearly';
+
+        const res = await fetch(`${API_BASE_URL}/api/admin/dashboard/${endpoint}`);
+        const data = await res.json();
+        setChartData(data);
+      } catch (error) {
+        console.error(`Error fetching chart data for ${timeframe}:`, error);
+      } finally {
+        setChartLoading(false);
+      }
+    };
+    fetchChartData();
+  }, [timeframe]);
 
   const formatVND = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
   
@@ -49,32 +70,131 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Doanh Thu 7 Ngày Gần Nhất</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+              {timeframe === 'day' ? 'Doanh Thu 7 Ngày Gần Nhất' : timeframe === 'week' ? 'Doanh Thu 10 Tuần Gần Nhất' : timeframe === 'month' ? 'Doanh Thu Các Tháng Trong Năm' : 'Doanh Thu Các Năm'}
+            </h3>
+            <div className="flex bg-slate-100 dark:bg-slate-700 p-0.5 rounded-lg text-xs font-semibold">
+              <button 
+                onClick={() => setTimeframe('day')}
+                className={`px-2 py-1.5 rounded-md transition-all ${timeframe === 'day' ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'}`}
+              >
+                Ngày
+              </button>
+              <button 
+                onClick={() => setTimeframe('week')}
+                className={`px-2 py-1.5 rounded-md transition-all ${timeframe === 'week' ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'}`}
+              >
+                Tuần
+              </button>
+              <button 
+                onClick={() => setTimeframe('month')}
+                className={`px-2 py-1.5 rounded-md transition-all ${timeframe === 'month' ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'}`}
+              >
+                Tháng
+              </button>
+              <button 
+                onClick={() => setTimeframe('year')}
+                className={`px-2 py-1.5 rounded-md transition-all ${timeframe === 'year' ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'}`}
+              >
+                Năm
+              </button>
+            </div>
+          </div>
           <div className="h-[300px]">
-            {chartData.length > 0 ? (
+            {chartLoading ? (
+              <div className="h-full flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+              </div>
+            ) : chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(value) => `${value / 1000}k`} dx={-10} />
-                  <Tooltip 
-                    formatter={(value) => [formatVND(value), 'Doanh thu']}
-                    labelFormatter={(label) => `Ngày: ${label}`}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-                </AreaChart>
+                {timeframe === 'day' ? (
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
+                    <XAxis 
+                      dataKey="date" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fontSize: 11, fill: '#64748b' }} 
+                      dy={10} 
+                      tickFormatter={(val) => {
+                        try {
+                          const d = new Date(val);
+                          return `${d.getDate()}/${d.getMonth() + 1}`;
+                        } catch (e) {
+                          return val;
+                        }
+                      }}
+                    />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={(value) => `${value / 1000}k`} dx={-10} />
+                    <Tooltip 
+                      formatter={(value) => [formatVND(value), 'Doanh thu']}
+                      labelFormatter={(label) => {
+                        try {
+                          const d = new Date(label);
+                          return `Ngày: ${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+                        } catch (e) {
+                          return label;
+                        }
+                      }}
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                  </AreaChart>
+                ) : (
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
+                    <XAxis 
+                      dataKey={timeframe === 'week' ? 'week' : timeframe === 'month' ? 'month' : 'year'} 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fontSize: 11, fill: '#64748b' }} 
+                      dy={10} 
+                      tickFormatter={(val) => {
+                        if (timeframe === 'week') {
+                          try {
+                            const d = new Date(val);
+                            return `T. ${d.getDate()}/${d.getMonth() + 1}`;
+                          } catch (e) {
+                            return val;
+                          }
+                        }
+                        return val;
+                      }}
+                    />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={(value) => `${value / 1000}k`} dx={-10} />
+                    <Tooltip 
+                      formatter={(value) => [formatVND(value), 'Doanh thu']}
+                      labelFormatter={(label) => {
+                        if (timeframe === 'week') {
+                          try {
+                            const d = new Date(label);
+                            return `Tuần từ ngày: ${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+                          } catch (e) {
+                            return label;
+                          }
+                        }
+                        if (timeframe === 'month') {
+                          return typeof label === 'string' && label.startsWith('T') ? `Tháng ${label.substring(1)}` : `Tháng: ${label}`;
+                        }
+                        return `${label}`;
+                      }}
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={timeframe === 'week' ? 30 : timeframe === 'month' ? 20 : 40} />
+                  </BarChart>
+                )}
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-slate-400">
                 <DollarSign size={48} className="text-slate-200 dark:text-slate-700 mb-2" />
-                <p>Không có dữ liệu doanh thu 7 ngày qua</p>
+                <p>Không có dữ liệu doanh thu</p>
               </div>
             )}
           </div>
