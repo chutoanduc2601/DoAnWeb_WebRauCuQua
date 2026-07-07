@@ -130,7 +130,16 @@ function UserApp() {
       <main>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/" element={
+              <Navigate 
+                to={{ 
+                  pathname: '/home', 
+                  search: window.location.search, 
+                  hash: window.location.hash 
+                }} 
+                replace 
+              />
+            } />
             
             <Route path="/home" element={
               <motion.div

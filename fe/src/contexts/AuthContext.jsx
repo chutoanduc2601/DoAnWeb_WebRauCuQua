@@ -52,8 +52,11 @@ export function AuthProvider({ children }) {
   // Khởi tạo: kiểm tra session hiện tại
   useEffect(() => {
     const initAuth = async () => {
+      console.log('=== initAuth Start ===');
+      console.log('Current URL:', window.location.href);
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        console.log('initAuth Session user:', session?.user?.email || 'No user session');
         if (session?.user) {
           setUser(session.user);
           const profileData = await fetchProfile(session.user.id, session.user);
@@ -71,6 +74,9 @@ export function AuthProvider({ children }) {
     // Lắng nghe thay đổi auth state
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('=== onAuthStateChange ===');
+        console.log('Event:', event);
+        console.log('Session user:', session?.user?.email || 'No user session');
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user);
           // Đợi 1 chút để trigger tạo profile hoàn tất, nếu không có sẽ tự động chèn
@@ -130,13 +136,25 @@ export function AuthProvider({ children }) {
 
   // Đăng nhập bằng OAuth (Google, Facebook)
   const signInWithOAuth = async (provider) => {
+    console.log('=== OAuth Login Start ===');
+    console.log('Provider:', provider);
+    console.log('Redirect URL:', window.location.origin);
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: window.location.origin,
       },
     });
+    console.log('OAuth response data:', data);
+    console.log('OAuth response error:', error);
     if (error) throw error;
+    
+    // Nếu thư viện không tự động chuyển hướng, chúng ta sẽ tự chuyển hướng thủ công
+    if (data?.url) {
+      console.log('Redirecting to:', data.url);
+      window.location.href = data.url;
+    }
+    
     return data;
   };
 
